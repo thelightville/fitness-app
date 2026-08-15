@@ -13,6 +13,7 @@ RUN groupadd --system --gid 1001 nodejs \
 
 COPY --chown=nextjs:nodejs .next/standalone ./
 COPY --chown=nextjs:nodejs .next/static ./.next/static
+RUN mkdir -p public
 COPY --chown=nextjs:nodejs public ./public
 
 USER nextjs
