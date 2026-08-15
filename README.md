@@ -15,6 +15,8 @@ Fitness PT Tracker helps personal trainers and clients schedule, confirm, attend
 - **Location check-in:** verify the client is at the gym via browser geolocation
 - **Workout logging:** record workout type, exercises, duration, intensity, and notes
 - **Dashboard analytics:** attendance trends, no-show rates, trainer utilization, workout breakdown
+- **Admin management:** full CRUD for clients, trainers, and gym locations
+- **Dark mode:** system-aware theme toggle
 - **Audit logs:** track who changed what and when
 
 ## Tech Stack
@@ -51,13 +53,23 @@ Seed accounts:
 2. Sign in with the Admin email and password above
 3. The Admin dashboard is at `/dashboard/admin`
 
-Admins can view analytics, manage all appointments, and access trainer utilization reports.
+Admins can:
+
+- View analytics and reports
+- Manage clients (`/dashboard/admin/clients`): add, edit, deactivate
+- Manage trainers (`/dashboard/admin/trainers`): add, edit, deactivate, set bio/specialties
+- Manage gym locations (`/dashboard/admin/gyms`): add, edit, remove, set check-in radius
+- Manage all appointments
 
 ## Documentation
 
 - [Architecture](docs/architecture.md)
 - [Deployment](docs/deployment.md)
 - [Contributing](CONTRIBUTING.md)
+
+### Dark mode
+
+Click the sun/moon icon in the dashboard navigation to switch between light, dark, and system themes.
 
 ## Credits
 
