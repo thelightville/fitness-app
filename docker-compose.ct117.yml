@@ -31,7 +31,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.runner
     container_name: fitness-app
     restart: unless-stopped
     depends_on:
@@ -61,8 +61,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
-    command: >
-      sh -c "npx prisma migrate deploy && npm run db:seed && node server.js"
 
 volumes:
   fitness_db_data:

@@ -28,9 +28,20 @@ if [ ! -f ".env" ]; then
   exit 1
 fi
 
-echo "[4] Building and starting containers..."
+echo "[4] Installing dependencies and building app on host..."
+npm ci
+npx prisma generate
+npm run build
+
+echo "[5] Starting database and running migrations..."
 docker compose -f docker-compose.ct117.yml down || true
-docker compose -f docker-compose.ct117.yml up -d --build
+docker compose -f docker-compose.ct117.yml up -d db
+sleep 10
+npx prisma migrate deploy
+npm run db:seed
+
+echo "[6] Building and starting app container..."
+docker compose -f docker-compose.ct117.yml up -d --build app
 
 echo "[5] Waiting for app healthcheck..."
 sleep 15
