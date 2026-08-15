@@ -45,6 +45,14 @@ Seed accounts:
 | Trainer | `trainer@fitness.myapps.com.ng` | `TrainerPass123!` |
 | Client | `client@fitness.myapps.com.ng` | `ClientPass123!` |
 
+### Admin access
+
+1. Go to `/login`
+2. Sign in with the Admin email and password above
+3. The Admin dashboard is at `/dashboard/admin`
+
+Admins can view analytics, manage all appointments, and access trainer utilization reports.
+
 ## Documentation
 
 - [Architecture](docs/architecture.md)
