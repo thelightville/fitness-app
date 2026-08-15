@@ -5,6 +5,10 @@ import { AppointmentStatus, UserRole } from '@prisma/client';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { StatusBadge } from '@/components/status-badge';
+import { StatCard } from '@/components/ui/stat-card';
+import { PageHeader } from '@/components/ui/page-header';
+import { EmptyState } from '@/components/ui/empty-state';
+import { CalendarDays, CheckCircle2, TrendingUp, UserX, Clock, MapPin } from 'lucide-react';
 
 async function getDashboardData(userId: string, role: UserRole) {
   let where: any = {};
@@ -79,80 +83,118 @@ export default async function DashboardPage() {
   const isClient = session.user.role === UserRole.CLIENT;
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Welcome back, {session.user.name || session.user.email}</p>
-      </div>
+    <div className="space-y-8 animate-fade-in">
+      <PageHeader
+        title="Dashboard"
+        subtitle={`Welcome back, ${session.user.name || session.user.email}`}
+        action={
+          <Link href="/dashboard/appointments" className="btn-secondary">
+            <CalendarDays className="h-4 w-4" aria-hidden="true" />
+            Manage appointments
+          </Link>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="card">
-          <p className="text-sm font-medium text-gray-600">Total Sessions</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{data.total}</p>
-        </div>
-        <div className="card">
-          <p className="text-sm font-medium text-gray-600">Completed</p>
-          <p className="mt-2 text-3xl font-bold text-primary-600">{data.completed}</p>
-        </div>
-        <div className="card">
-          <p className="text-sm font-medium text-gray-600">Completion Rate</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{data.completionRate}%</p>
-        </div>
-        <div className="card">
-          <p className="text-sm font-medium text-gray-600">No-Shows</p>
-          <p className="mt-2 text-3xl font-bold text-red-600">{data.noShow}</p>
-        </div>
+        <StatCard
+          label="Total Sessions"
+          value={data.total}
+          icon={CalendarDays}
+          color="slate"
+        />
+        <StatCard
+          label="Completed"
+          value={data.completed}
+          icon={CheckCircle2}
+          color="green"
+        />
+        <StatCard
+          label="Completion Rate"
+          value={`${data.completionRate}%`}
+          icon={TrendingUp}
+          color="blue"
+        />
+        <StatCard
+          label="No-Shows"
+          value={data.noShow}
+          icon={UserX}
+          color="red"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div className="card">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Upcoming Appointments</h2>
-            <Link href="/dashboard/appointments" className="text-sm text-primary-600 hover:text-primary-500">
+            <h2 className="section-title flex items-center gap-2">
+              <Clock className="h-5 w-5 text-primary-600" aria-hidden="true" />
+              Upcoming Appointments
+            </h2>
+            <Link href="/dashboard/appointments" className="text-sm font-semibold text-primary-600 hover:text-primary-700">
               View all
             </Link>
           </div>
-          <div className="mt-4 space-y-4">
+          <div className="mt-4 space-y-3">
             {data.upcoming.length === 0 && (
-              <p className="text-sm text-gray-500">No upcoming appointments.</p>
+              <EmptyState
+                icon={CalendarDays}
+                title="No upcoming appointments"
+                description="Your schedule is clear. Book a new session to get started."
+              />
             )}
             {data.upcoming.map((appt) => (
-              <div key={appt.id} className="flex items-center justify-between rounded-lg border border-gray-100 p-4">
-                <div>
-                  <p className="font-medium text-gray-900">
+              <Link
+                key={appt.id}
+                href={`/dashboard/appointments/${appt.id}`}
+                className="group flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-colors hover:border-primary-200 hover:bg-primary-50/30"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-slate-900 group-hover:text-primary-700">
                     {format(new Date(appt.startsAt), 'EEEE, MMMM d, yyyy h:mm a')}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="mt-0.5 text-sm text-slate-600">
                     {isClient
                       ? `Trainer: ${appt.trainer.user.name || appt.trainer.user.email}`
                       : `Client: ${appt.client.user.name || appt.client.user.email}`}
                   </p>
-                  <p className="text-sm text-gray-500">{appt.gymLocation.name}</p>
+                  <p className="mt-0.5 flex items-center gap-1 text-sm text-slate-500">
+                    <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                    {appt.gymLocation.name}
+                  </p>
                 </div>
                 <StatusBadge status={appt.status} />
-              </div>
+              </Link>
             ))}
           </div>
         </div>
 
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Completed Sessions</h2>
-          <div className="mt-4 space-y-4">
+          <h2 className="section-title flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-primary-600" aria-hidden="true" />
+            Recent Completed Sessions
+          </h2>
+          <div className="mt-4 space-y-3">
             {data.recent.length === 0 && (
-              <p className="text-sm text-gray-500">No completed sessions yet.</p>
+              <EmptyState
+                icon={CheckCircle2}
+                title="No completed sessions yet"
+                description="Completed sessions will appear here once trainers log workouts."
+              />
             )}
             {data.recent.map((appt) => (
-              <div key={appt.id} className="rounded-lg border border-gray-100 p-4">
-                <p className="font-medium text-gray-900">
+              <div
+                key={appt.id}
+                className="rounded-xl border border-slate-100 bg-slate-50/50 p-4"
+              >
+                <p className="font-semibold text-slate-900">
                   {format(new Date(appt.startsAt), 'MMMM d, yyyy')}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="mt-0.5 text-sm text-slate-600">
                   {isClient
                     ? `Trainer: ${appt.trainer.user.name || appt.trainer.user.email}`
                     : `Client: ${appt.client.user.name || appt.client.user.email}`}
                 </p>
                 {appt.workoutLog && (
-                  <p className="text-sm text-gray-500">
+                  <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-700">
                     {appt.workoutLog.workoutType} · {appt.workoutLog.durationMinutes} min
                   </p>
                 )}

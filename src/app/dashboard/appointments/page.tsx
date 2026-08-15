@@ -6,6 +6,10 @@ import Link from 'next/link';
 import { format, parseISO } from 'date-fns';
 import { StatusBadge } from '@/components/status-badge';
 import { AppointmentStatus, UserRole } from '@prisma/client';
+import { PageHeader } from '@/components/ui/page-header';
+import { Spinner } from '@/components/ui/spinner';
+import { EmptyState } from '@/components/ui/empty-state';
+import { CalendarDays, MapPin, Eye, CheckCircle2, XCircle, Plus, User } from 'lucide-react';
 
 interface Appointment {
   id: string;
@@ -109,16 +113,30 @@ export default function AppointmentsPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Appointments</h1>
-      </div>
+    <div className="space-y-8 animate-fade-in">
+      <PageHeader
+        title="Appointments"
+        subtitle="Schedule, manage, and track your training sessions."
+      />
 
       {isClient && (
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900">Book a Session</h2>
-          {error && <div className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-          {success && <div className="mt-4 rounded-md bg-green-50 p-3 text-sm text-green-700">{success}</div>}
+          <h2 className="section-title flex items-center gap-2">
+            <Plus className="h-5 w-5 text-primary-600" aria-hidden="true" />
+            Book a Session
+          </h2>
+          {error && (
+            <div className="mt-4 flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-700">
+              <XCircle className="h-4 w-4" aria-hidden="true" />
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="mt-4 flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm font-semibold text-green-700">
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+              {success}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div>
               <label className="label">Trainer</label>
@@ -126,7 +144,7 @@ export default function AppointmentsPage() {
                 required
                 value={form.trainerId}
                 onChange={(e) => setForm({ ...form, trainerId: e.target.value })}
-                className="input mt-1"
+                className="input"
               >
                 <option value="">Select trainer</option>
                 {trainers.map((t) => (
@@ -142,7 +160,7 @@ export default function AppointmentsPage() {
                 required
                 value={form.gymLocationId}
                 onChange={(e) => setForm({ ...form, gymLocationId: e.target.value })}
-                className="input mt-1"
+                className="input"
               >
                 <option value="">Select gym</option>
                 {gyms.map((g) => (
@@ -159,7 +177,7 @@ export default function AppointmentsPage() {
                 required
                 value={form.date}
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
-                className="input mt-1"
+                className="input"
               />
             </div>
             <div>
@@ -169,11 +187,12 @@ export default function AppointmentsPage() {
                 required
                 value={form.time}
                 onChange={(e) => setForm({ ...form, time: e.target.value })}
-                className="input mt-1"
+                className="input"
               />
             </div>
             <div className="flex items-end">
               <button type="submit" className="btn-primary w-full">
+                <CalendarDays className="h-4 w-4" aria-hidden="true" />
                 Book Session
               </button>
             </div>
@@ -182,58 +201,81 @@ export default function AppointmentsPage() {
       )}
 
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900">Your Appointments</h2>
+        <h2 className="section-title flex items-center gap-2">
+          <CalendarDays className="h-5 w-5 text-primary-600" aria-hidden="true" />
+          Your Appointments
+        </h2>
         {loading ? (
-          <p className="mt-4 text-gray-500">Loading...</p>
+          <div className="mt-6 flex justify-center py-8">
+            <Spinner label="Loading appointments..." />
+          </div>
         ) : appointments.length === 0 ? (
-          <p className="mt-4 text-gray-500">No appointments found.</p>
+          <div className="mt-4">
+            <EmptyState
+              icon={CalendarDays}
+              title="No appointments found"
+              description="Book your first session to see it here."
+            />
+          </div>
         ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="mt-4 -mx-6 overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
               <thead>
                 <tr>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Date & Time</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">
-                    {isClient ? 'Trainer' : 'Client'}
-                  </th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Location</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Status</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Actions</th>
+                  <th className="table-header">Date & Time</th>
+                  <th className="table-header">{isClient ? 'Trainer' : 'Client'}</th>
+                  <th className="table-header">Location</th>
+                  <th className="table-header">Status</th>
+                  <th className="table-header">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-slate-200">
                 {appointments.map((appt) => (
-                  <tr key={appt.id}>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-900">
+                  <tr key={appt.id} className="hover:bg-slate-50/60">
+                    <td className="table-cell font-medium text-slate-900">
                       {format(parseISO(appt.startsAt), 'MMM d, yyyy h:mm a')}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-900">
-                      {isClient
-                        ? appt.trainer.user.name || appt.trainer.user.email
-                        : appt.client.user.name || appt.client.user.email}
+                    <td className="table-cell">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                        {isClient
+                          ? appt.trainer.user.name || appt.trainer.user.email
+                          : appt.client.user.name || appt.client.user.email}
+                      </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{appt.gymLocation.name}</td>
-                    <td className="px-4 py-3">
+                    <td className="table-cell">
+                      <div className="flex items-center gap-1.5 text-slate-500">
+                        <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                        {appt.gymLocation.name}
+                      </div>
+                    </td>
+                    <td className="table-cell">
                       <StatusBadge status={appt.status} />
                     </td>
-                    <td className="px-4 py-3 text-sm">
-                      <div className="flex flex-wrap gap-2">
-                        <Link href={`/dashboard/appointments/${appt.id}`} className="text-primary-600 hover:text-primary-500">
+                    <td className="table-cell">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <Link
+                          href={`/dashboard/appointments/${appt.id}`}
+                          className="inline-flex items-center gap-1 text-sm font-semibold text-primary-600 hover:text-primary-700"
+                        >
+                          <Eye className="h-4 w-4" aria-hidden="true" />
                           View
                         </Link>
                         {!isClient && appt.status === AppointmentStatus.PENDING && (
                           <button
                             onClick={() => updateStatus(appt.id, AppointmentStatus.CONFIRMED)}
-                            className="text-blue-600 hover:text-blue-500"
+                            className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700"
                           >
+                            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                             Confirm
                           </button>
                         )}
                         {appt.status === AppointmentStatus.CONFIRMED && (
                           <button
                             onClick={() => updateStatus(appt.id, AppointmentStatus.CANCELLED)}
-                            className="text-red-600 hover:text-red-500"
+                            className="inline-flex items-center gap-1 text-sm font-semibold text-red-600 hover:text-red-700"
                           >
+                            <XCircle className="h-4 w-4" aria-hidden="true" />
                             Cancel
                           </button>
                         )}

@@ -15,6 +15,10 @@ import {
   Legend,
 } from 'recharts';
 import { WorkoutType } from '@prisma/client';
+import { PageHeader } from '@/components/ui/page-header';
+import { Spinner } from '@/components/ui/spinner';
+import { StatCard } from '@/components/ui/stat-card';
+import { CalendarDays, CheckCircle2, UserX, Clock, BarChart3, Users, Activity } from 'lucide-react';
 
 interface DashboardData {
   stats: {
@@ -61,34 +65,45 @@ export default function AdminDashboardPage() {
   ].filter((d) => d.value > 0);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Admin Analytics</h1>
-        <p className="text-gray-600">Overview of appointments, attendance, and trainer activity.</p>
-      </div>
+    <div className="space-y-8 animate-fade-in">
+      <PageHeader
+        title="Admin Analytics"
+        subtitle="Overview of appointments, attendance, and trainer activity."
+      />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="card">
-          <p className="text-sm font-medium text-gray-600">Total Appointments</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{data.stats.totalAppointments}</p>
-        </div>
-        <div className="card">
-          <p className="text-sm font-medium text-gray-600">Completion Rate</p>
-          <p className="mt-2 text-3xl font-bold text-primary-600">{data.stats.completionRate}%</p>
-        </div>
-        <div className="card">
-          <p className="text-sm font-medium text-gray-600">No-Show Rate</p>
-          <p className="mt-2 text-3xl font-bold text-red-600">{data.stats.noShowRate}%</p>
-        </div>
-        <div className="card">
-          <p className="text-sm font-medium text-gray-600">Upcoming</p>
-          <p className="mt-2 text-3xl font-bold text-blue-600">{data.stats.upcomingAppointments}</p>
-        </div>
+        <StatCard
+          label="Total Appointments"
+          value={data.stats.totalAppointments}
+          icon={CalendarDays}
+          color="slate"
+        />
+        <StatCard
+          label="Completion Rate"
+          value={`${data.stats.completionRate}%`}
+          icon={CheckCircle2}
+          color="green"
+        />
+        <StatCard
+          label="No-Show Rate"
+          value={`${data.stats.noShowRate}%`}
+          icon={UserX}
+          color="red"
+        />
+        <StatCard
+          label="Upcoming"
+          value={data.stats.upcomingAppointments}
+          icon={Clock}
+          color="blue"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900">Appointment Status</h2>
+          <h2 className="section-title flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-primary-600" aria-hidden="true" />
+            Appointment Status
+          </h2>
           <div className="mt-4 h-80">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -114,15 +129,21 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900">Workout Type Breakdown</h2>
+          <h2 className="section-title flex items-center gap-2">
+            <Activity className="h-5 w-5 text-primary-600" aria-hidden="true" />
+            Workout Type Breakdown
+          </h2>
           <div className="mt-4 h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.workoutBreakdown}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="type" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="#22c55e" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="type" tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  cursor={{ fill: '#f1f5f9' }}
+                  contentStyle={{ borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}
+                />
+                <Bar dataKey="count" fill="#16a34a" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -130,25 +151,40 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900">Trainer Utilization (This Month)</h2>
-        <div className="mt-4 overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+        <h2 className="section-title flex items-center gap-2">
+          <Users className="h-5 w-5 text-primary-600" aria-hidden="true" />
+          Trainer Utilization (This Month)
+        </h2>
+        <div className="mt-4 -mx-6 overflow-x-auto">
+          <table className="min-w-full divide-y divide-slate-200">
             <thead>
               <tr>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Trainer</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Total Sessions</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Completed</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Completion Rate</th>
+                <th className="table-header">Trainer</th>
+                <th className="table-header">Total Sessions</th>
+                <th className="table-header">Completed</th>
+                <th className="table-header">Completion Rate</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-slate-200">
               {data.trainerUtilization.map((t) => (
-                <tr key={t.trainerId}>
-                  <td className="px-4 py-3 text-sm text-gray-900">{t.trainerName || 'Unknown'}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{t.totalSessions}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{t.completedSessions}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">
-                    {t.totalSessions > 0 ? Math.round((t.completedSessions / t.totalSessions) * 100) : 0}%
+                <tr key={t.trainerId} className="hover:bg-slate-50/60">
+                  <td className="table-cell font-medium text-slate-900">{t.trainerName || 'Unknown'}</td>
+                  <td className="table-cell">{t.totalSessions}</td>
+                  <td className="table-cell">{t.completedSessions}</td>
+                  <td className="table-cell">
+                    <div className="flex items-center gap-3">
+                      <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-100">
+                        <div
+                          className="h-full rounded-full bg-primary-500"
+                          style={{
+                            width: `${t.totalSessions > 0 ? Math.round((t.completedSessions / t.totalSessions) * 100) : 0}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-sm font-semibold text-slate-700">
+                        {t.totalSessions > 0 ? Math.round((t.completedSessions / t.totalSessions) * 100) : 0}%
+                      </span>
+                    </div>
                   </td>
                 </tr>
               ))}

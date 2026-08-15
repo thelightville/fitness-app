@@ -6,6 +6,25 @@ import { useSession } from 'next-auth/react';
 import { format, parseISO } from 'date-fns';
 import { StatusBadge } from '@/components/status-badge';
 import { AppointmentStatus, UserRole, WorkoutType } from '@prisma/client';
+import { PageHeader } from '@/components/ui/page-header';
+import { Spinner } from '@/components/ui/spinner';
+import {
+  CalendarDays,
+  MapPin,
+  User,
+  Download,
+  MapPinCheck,
+  XCircle,
+  UserX,
+  Trophy,
+  Clock,
+  Activity,
+  FileText,
+  MessageSquare,
+  CheckCircle2,
+  ArrowLeft,
+} from 'lucide-react';
+import Link from 'next/link';
 
 interface AppointmentDetail {
   id: string;
@@ -165,61 +184,124 @@ export default function AppointmentDetailPage() {
     window.open(`/api/appointments/${id}/calendar`, '_blank');
   }
 
-  if (loading) return <p className="text-gray-500">Loading...</p>;
-  if (!appointment) return <p className="text-gray-500">Appointment not found.</p>;
+  if (loading) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <Spinner label="Loading appointment details..." />
+      </div>
+    );
+  }
+
+  if (!appointment) {
+    return (
+      <div className="card text-center py-12">
+        <p className="text-slate-500">Appointment not found.</p>
+        <Link href="/dashboard/appointments" className="btn-secondary mt-4 inline-flex">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back to appointments
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Appointment Details</h1>
-        <button onClick={downloadCalendar} className="btn-secondary">
-          Download Calendar Invite
-        </button>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center gap-4">
+        <Link
+          href="/dashboard/appointments"
+          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+          aria-label="Back to appointments"
+        >
+          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+        </Link>
+        <PageHeader
+          title="Appointment Details"
+          action={
+            <button onClick={downloadCalendar} className="btn-secondary">
+              <Download className="h-4 w-4" aria-hidden="true" />
+              Calendar Invite
+            </button>
+          }
+        />
       </div>
 
       {message && (
-        <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-700">{message}</div>
+        <div className="rounded-xl bg-blue-50 p-4 text-sm font-semibold text-blue-700">{message}</div>
       )}
 
       <div className="card">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <p className="text-sm text-gray-500">Date & Time</p>
-            <p className="text-lg font-medium text-gray-900">
-              {format(parseISO(appointment.startsAt), 'EEEE, MMMM d, yyyy h:mm a')} -{' '}
-              {format(parseISO(appointment.endsAt), 'h:mm a')}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Status</p>
-            <div className="mt-1">
-              <StatusBadge status={appointment.status} />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex items-start gap-3">
+            <div className="rounded-lg bg-primary-50 p-2 text-primary-600">
+              <CalendarDays className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Date & Time</p>
+              <p className="mt-0.5 text-base font-semibold text-slate-900">
+                {format(parseISO(appointment.startsAt), 'EEEE, MMMM d, yyyy')}
+              </p>
+              <p className="text-sm text-slate-600">
+                {format(parseISO(appointment.startsAt), 'h:mm a')} - {format(parseISO(appointment.endsAt), 'h:mm a')}
+              </p>
             </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">Client</p>
-            <p className="font-medium text-gray-900">
-              {appointment.client.user.name || appointment.client.user.email}
-            </p>
+
+          <div className="flex items-start gap-3">
+            <div className="rounded-lg bg-blue-50 p-2 text-blue-600">
+              <Activity className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Status</p>
+              <div className="mt-1">
+                <StatusBadge status={appointment.status} />
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">Trainer</p>
-            <p className="font-medium text-gray-900">
-              {appointment.trainer.user.name || appointment.trainer.user.email}
-            </p>
+
+          <div className="flex items-start gap-3">
+            <div className="rounded-lg bg-slate-100 p-2 text-slate-600">
+              <User className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Client</p>
+              <p className="mt-0.5 text-base font-semibold text-slate-900">
+                {appointment.client.user.name || appointment.client.user.email}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">Location</p>
-            <p className="font-medium text-gray-900">
-              {appointment.gymLocation.name}
-              {appointment.gymLocation.address && `, ${appointment.gymLocation.address}`}
-            </p>
+
+          <div className="flex items-start gap-3">
+            <div className="rounded-lg bg-slate-100 p-2 text-slate-600">
+              <User className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Trainer</p>
+              <p className="mt-0.5 text-base font-semibold text-slate-900">
+                {appointment.trainer.user.name || appointment.trainer.user.email}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 sm:col-span-2 lg:col-span-1">
+            <div className="rounded-lg bg-amber-50 p-2 text-amber-600">
+              <MapPin className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Location</p>
+              <p className="mt-0.5 text-base font-semibold text-slate-900">
+                {appointment.gymLocation.name}
+              </p>
+              {appointment.gymLocation.address && (
+                <p className="text-sm text-slate-600">{appointment.gymLocation.address}</p>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-8 flex flex-wrap gap-3 border-t border-slate-100 pt-6">
           {!isClient && appointment.status === AppointmentStatus.PENDING && (
             <button onClick={() => updateStatus(AppointmentStatus.CONFIRMED)} className="btn-primary">
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
               Confirm
             </button>
           )}
@@ -227,18 +309,22 @@ export default function AppointmentDetailPage() {
             <>
               {isClient && (
                 <button onClick={handleCheckIn} disabled={checkInLoading} className="btn-primary">
+                  <MapPinCheck className="h-4 w-4" aria-hidden="true" />
                   {checkInLoading ? 'Getting location...' : 'Check In at Gym'}
                 </button>
               )}
               {(!isClient || isAdmin) && (
                 <button onClick={handleManualCheckIn} className="btn-secondary">
+                  <MapPinCheck className="h-4 w-4" aria-hidden="true" />
                   Manual Check-In
                 </button>
               )}
               <button onClick={() => updateStatus(AppointmentStatus.CANCELLED)} className="btn-danger">
+                <XCircle className="h-4 w-4" aria-hidden="true" />
                 Cancel
               </button>
               <button onClick={() => updateStatus(AppointmentStatus.NO_SHOW)} className="btn-secondary">
+                <UserX className="h-4 w-4" aria-hidden="true" />
                 Mark No-Show
               </button>
             </>
@@ -248,15 +334,27 @@ export default function AppointmentDetailPage() {
 
       {appointment.checkIns.length > 0 && (
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900">Check-Ins</h2>
-          <div className="mt-4 space-y-3">
+          <h2 className="section-title flex items-center gap-2">
+            <MapPinCheck className="h-5 w-5 text-primary-600" aria-hidden="true" />
+            Check-Ins
+          </h2>
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {appointment.checkIns.map((ci, idx) => (
-              <div key={idx} className="rounded-lg border border-gray-100 p-4">
-                <p className="text-sm text-gray-600">
+              <div
+                key={idx}
+                className={`rounded-xl border p-4 ${
+                  ci.verified
+                    ? 'border-emerald-200 bg-emerald-50/40'
+                    : 'border-red-200 bg-red-50/40'
+                }`}
+              >
+                <p className="text-sm font-semibold text-slate-900">
                   {format(parseISO(ci.checkedInAt), 'MMM d, yyyy h:mm a')}
                 </p>
-                <p className="text-sm text-gray-600">
-                  Distance: {ci.distanceMeters < 0 ? 'manual' : `${Math.round(ci.distanceMeters)}m`} ·{' '}
+                <p className="mt-1 text-sm text-slate-600">
+                  Distance: {ci.distanceMeters < 0 ? 'manual' : `${Math.round(ci.distanceMeters)}m`}
+                </p>
+                <p className={`mt-1 text-xs font-bold uppercase ${ci.verified ? 'text-emerald-700' : 'text-red-700'}`}>
                   {ci.verified ? 'Verified' : 'Not verified'}
                 </p>
               </div>
@@ -267,14 +365,17 @@ export default function AppointmentDetailPage() {
 
       {(isTrainer || isAdmin) && appointment.status !== AppointmentStatus.COMPLETED && (
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900">Log Workout</h2>
-          <form onSubmit={handleWorkoutLog} className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <h2 className="section-title flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-primary-600" aria-hidden="true" />
+            Log Workout
+          </h2>
+          <form onSubmit={handleWorkoutLog} className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <label className="label">Workout Type</label>
               <select
                 value={workoutForm.workoutType}
                 onChange={(e) => setWorkoutForm({ ...workoutForm, workoutType: e.target.value as unknown as WorkoutType })}
-                className="input mt-1"
+                className="input"
               >
                 {Object.values(WorkoutType).map((type) => (
                   <option key={type} value={type}>
@@ -291,7 +392,7 @@ export default function AppointmentDetailPage() {
                 min={1}
                 value={workoutForm.durationMinutes}
                 onChange={(e) => setWorkoutForm({ ...workoutForm, durationMinutes: Number(e.target.value) })}
-                className="input mt-1"
+                className="input"
               />
             </div>
             <div>
@@ -302,27 +403,34 @@ export default function AppointmentDetailPage() {
                 max={10}
                 value={workoutForm.intensity}
                 onChange={(e) => setWorkoutForm({ ...workoutForm, intensity: Number(e.target.value) })}
-                className="input mt-1"
+                className="input"
               />
             </div>
-            <div>
-              <label className="label">PT Notes</label>
+            <div className="sm:col-span-2">
+              <label className="label flex items-center gap-2">
+                <FileText className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                PT Notes
+              </label>
               <textarea
                 value={workoutForm.notes}
                 onChange={(e) => setWorkoutForm({ ...workoutForm, notes: e.target.value })}
-                className="input mt-1"
+                className="input min-h-[100px]"
               />
             </div>
             <div>
-              <label className="label">Client Feedback</label>
+              <label className="label flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                Client Feedback
+              </label>
               <textarea
                 value={workoutForm.clientFeedback}
                 onChange={(e) => setWorkoutForm({ ...workoutForm, clientFeedback: e.target.value })}
-                className="input mt-1"
+                className="input min-h-[100px]"
               />
             </div>
-            <div className="flex items-end">
-              <button type="submit" className="btn-primary w-full">
+            <div className="flex items-end sm:col-span-2 lg:col-span-3">
+              <button type="submit" className="btn-primary w-full sm:w-auto">
+                <Trophy className="h-4 w-4" aria-hidden="true" />
                 Complete Session
               </button>
             </div>
@@ -332,28 +440,39 @@ export default function AppointmentDetailPage() {
 
       {appointment.workoutLog && (
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900">Workout Log</h2>
-          <div className="mt-4 space-y-2">
-            <p className="text-sm text-gray-600">
-              <span className="font-medium">Type:</span> {appointment.workoutLog.workoutType}
-            </p>
-            <p className="text-sm text-gray-600">
-              <span className="font-medium">Duration:</span> {appointment.workoutLog.durationMinutes} minutes
-            </p>
-            {appointment.workoutLog.intensity && (
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">Intensity:</span> {appointment.workoutLog.intensity}/10
+          <h2 className="section-title flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-primary-600" aria-hidden="true" />
+            Workout Log
+          </h2>
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl bg-slate-50 p-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Type</p>
+              <p className="mt-1 text-lg font-bold text-slate-900">{appointment.workoutLog.workoutType}</p>
+            </div>
+            <div className="rounded-xl bg-slate-50 p-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Duration</p>
+              <p className="mt-1 text-lg font-bold text-slate-900 flex items-center gap-2">
+                <Clock className="h-4 w-4 text-primary-600" aria-hidden="true" />
+                {appointment.workoutLog.durationMinutes} min
               </p>
+            </div>
+            {appointment.workoutLog.intensity && (
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Intensity</p>
+                <p className="mt-1 text-lg font-bold text-slate-900">{appointment.workoutLog.intensity}/10</p>
+              </div>
             )}
             {appointment.workoutLog.notes && (
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">Notes:</span> {appointment.workoutLog.notes}
-              </p>
+              <div className="sm:col-span-2 lg:col-span-2">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-500">PT Notes</p>
+                <p className="mt-1 text-sm text-slate-700">{appointment.workoutLog.notes}</p>
+              </div>
             )}
             {appointment.workoutLog.clientFeedback && (
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">Client Feedback:</span> {appointment.workoutLog.clientFeedback}
-              </p>
+              <div className="sm:col-span-2 lg:col-span-2">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Client Feedback</p>
+                <p className="mt-1 text-sm text-slate-700">{appointment.workoutLog.clientFeedback}</p>
+              </div>
             )}
           </div>
         </div>
