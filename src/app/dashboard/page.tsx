@@ -145,18 +145,18 @@ export default async function DashboardPage() {
               <Link
                 key={appt.id}
                 href={`/dashboard/appointments/${appt.id}`}
-                className="group flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-colors hover:border-primary-200 hover:bg-primary-50/30"
+                className="group flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-colors hover:border-primary-200 hover:bg-primary-50/30 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-primary-900 dark:hover:bg-primary-900/20"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-slate-900 group-hover:text-primary-700">
+                  <p className="font-semibold text-slate-900 group-hover:text-primary-700 dark:text-slate-100 dark:group-hover:text-primary-400">
                     {format(new Date(appt.startsAt), 'EEEE, MMMM d, yyyy h:mm a')}
                   </p>
-                  <p className="mt-0.5 text-sm text-slate-600">
+                  <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">
                     {isClient
                       ? `Trainer: ${appt.trainer.user.name || appt.trainer.user.email}`
                       : `Client: ${appt.client.user.name || appt.client.user.email}`}
                   </p>
-                  <p className="mt-0.5 flex items-center gap-1 text-sm text-slate-500">
+                  <p className="mt-0.5 flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400">
                     <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
                     {appt.gymLocation.name}
                   </p>
@@ -183,18 +183,18 @@ export default async function DashboardPage() {
             {data.recent.map((appt) => (
               <div
                 key={appt.id}
-                className="rounded-xl border border-slate-100 bg-slate-50/50 p-4"
+                className="rounded-xl border border-slate-100 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-800/50"
               >
-                <p className="font-semibold text-slate-900">
+                <p className="font-semibold text-slate-900 dark:text-slate-100">
                   {format(new Date(appt.startsAt), 'MMMM d, yyyy')}
                 </p>
-                <p className="mt-0.5 text-sm text-slate-600">
+                <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">
                   {isClient
                     ? `Trainer: ${appt.trainer.user.name || appt.trainer.user.email}`
                     : `Client: ${appt.client.user.name || appt.client.user.email}`}
                 </p>
                 {appt.workoutLog && (
-                  <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-700">
+                  <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">
                     {appt.workoutLog.workoutType} · {appt.workoutLog.durationMinutes} min
                   </p>
                 )}

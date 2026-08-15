@@ -41,23 +41,23 @@ export default function RegisterPage() {
   const inputIconClass = 'pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3';
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 via-white to-slate-100 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 via-white to-slate-100 px-4 py-12 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <div className="mx-auto inline-flex rounded-2xl bg-primary-600 p-3 shadow-lg shadow-primary-600/20">
             <Dumbbell className="h-8 w-8 text-white" aria-hidden="true" />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold tracking-tight text-slate-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
             Create your account
           </h2>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
             Join Fitness PT to schedule and track your training sessions.
           </p>
         </div>
 
         <div className="card space-y-6">
           {error && (
-            <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-700">
+            <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-700 dark:bg-red-900/20 dark:text-red-400">
               <AlertCircle className="h-4 w-4" aria-hidden="true" />
               {error}
             </div>
@@ -179,15 +179,15 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="text-center text-sm text-slate-600">
+          <p className="text-center text-sm text-slate-600 dark:text-slate-400">
             Already have an account?{' '}
-            <Link href="/login" className="font-semibold text-primary-600 hover:text-primary-700">
+            <Link href="/login" className="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
               Sign in
             </Link>
           </p>
         </div>
 
-        <p className="text-center text-xs text-slate-400">Developed by Waju</p>
+        <p className="text-center text-xs text-slate-400 dark:text-slate-500">Developed by Waju</p>
       </div>
     </div>
   );

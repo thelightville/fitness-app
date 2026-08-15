@@ -41,7 +41,7 @@ Seed accounts:
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | `admin@fitness.myapps.com.ng` | `AdminPass123!` |
+| Admin | `admin@fitness.myapps.com.ng` | `Thelightville123.` |
 | Trainer | `trainer@fitness.myapps.com.ng` | `TrainerPass123!` |
 | Client | `client@fitness.myapps.com.ng` | `ClientPass123!` |
 

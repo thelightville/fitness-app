@@ -44,9 +44,9 @@ const features = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
       <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-2 text-xl font-extrabold tracking-tight text-primary-700">
+        <div className="flex items-center gap-2 text-xl font-extrabold tracking-tight text-primary-700 dark:text-primary-400">
           <div className="rounded-lg bg-primary-600 p-1.5">
             <Dumbbell className="h-5 w-5 text-white" aria-hidden="true" />
           </div>
@@ -64,10 +64,10 @@ export default function HomePage() {
 
       <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl">
+          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl dark:text-slate-100">
             Train smarter. Track every session.
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
             Schedule, confirm, check in, and log workouts — all in one place. Built for personal
             trainers and clients who want accurate, transparent records.
           </p>
@@ -93,8 +93,8 @@ export default function HomePage() {
                 <div className="rounded-xl bg-primary-50 p-3 text-primary-600 transition-colors group-hover:bg-primary-600 group-hover:text-white">
                   <Icon className="h-6 w-6" aria-hidden="true" />
                 </div>
-                <h3 className="mt-4 text-lg font-bold text-slate-900">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-slate-100">{feature.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
                   {feature.description}
                 </p>
               </div>
@@ -103,10 +103,10 @@ export default function HomePage() {
         </div>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-8">
-        <div className="mx-auto max-w-7xl px-4 text-center text-sm text-slate-500 sm:px-6 lg:px-8">
+      <footer className="border-t border-slate-200 bg-white py-8 dark:border-slate-700 dark:bg-slate-900">
+        <div className="mx-auto max-w-7xl px-4 text-center text-sm text-slate-500 dark:text-slate-400 sm:px-6 lg:px-8">
           <p>© {new Date().getFullYear()} Fitness PT Tracker. All rights reserved.</p>
-          <p className="mt-2 text-xs text-slate-400">Developed by Waju</p>
+          <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">Developed by Waju</p>
         </div>
       </footer>
     </div>

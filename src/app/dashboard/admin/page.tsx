@@ -18,7 +18,8 @@ import { WorkoutType } from '@prisma/client';
 import { PageHeader } from '@/components/ui/page-header';
 import { Spinner } from '@/components/ui/spinner';
 import { StatCard } from '@/components/ui/stat-card';
-import { CalendarDays, CheckCircle2, UserX, Clock, BarChart3, Users, Activity } from 'lucide-react';
+import { CalendarDays, CheckCircle2, UserX, Clock, BarChart3, Users, Activity, MapPin, Dumbbell, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 interface DashboardData {
   stats: {
@@ -70,6 +71,54 @@ export default function AdminDashboardPage() {
         title="Admin Analytics"
         subtitle="Overview of appointments, attendance, and trainer activity."
       />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <Link
+          href="/dashboard/admin/clients"
+          className="card card-hover group flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-blue-50 p-2 text-blue-600 group-hover:bg-blue-600 group-hover:text-white dark:bg-blue-900/30 dark:text-blue-400">
+              <Users className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="font-semibold text-slate-900 dark:text-slate-100">Manage Clients</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Add, edit, deactivate</p>
+            </div>
+          </div>
+          <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-primary-600" aria-hidden="true" />
+        </Link>
+        <Link
+          href="/dashboard/admin/trainers"
+          className="card card-hover group flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-purple-50 p-2 text-purple-600 group-hover:bg-purple-600 group-hover:text-white dark:bg-purple-900/30 dark:text-purple-400">
+              <Dumbbell className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="font-semibold text-slate-900 dark:text-slate-100">Manage Trainers</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Profiles & specialties</p>
+            </div>
+          </div>
+          <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-primary-600" aria-hidden="true" />
+        </Link>
+        <Link
+          href="/dashboard/admin/gyms"
+          className="card card-hover group flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-orange-50 p-2 text-orange-600 group-hover:bg-orange-600 group-hover:text-white dark:bg-orange-900/30 dark:text-orange-400">
+              <MapPin className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="font-semibold text-slate-900 dark:text-slate-100">Manage Gyms</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Locations & check-in radius</p>
+            </div>
+          </div>
+          <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-primary-600" aria-hidden="true" />
+        </Link>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

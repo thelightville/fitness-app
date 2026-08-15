@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useState } from 'react';
 import { Dumbbell, LayoutDashboard, CalendarDays, BarChart3, Menu, X, LogOut, User } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export function DashboardNav({ user }: { user: { name?: string | null; email?: string | null; role?: string } }) {
   const pathname = usePathname();
@@ -56,10 +57,11 @@ export function DashboardNav({ user }: { user: { name?: string | null; email?: s
           </div>
 
           <div className="hidden items-center gap-4 md:flex">
-            <div className="flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1.5 ring-1 ring-slate-200">
+            <ThemeToggle />
+            <div className="flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1.5 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
               <User className="h-4 w-4 text-slate-400" aria-hidden="true" />
-              <span className="text-sm font-medium text-slate-700">{user.name || user.email}</span>
-              <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-bold uppercase text-primary-700">
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{user.name || user.email}</span>
+              <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-bold uppercase text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">
                 {user.role}
               </span>
             </div>
@@ -105,11 +107,15 @@ export function DashboardNav({ user }: { user: { name?: string | null; email?: s
                 </Link>
               );
             })}
-            <div className="my-2 border-t border-slate-100" />
-            <div className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600">
+            <div className="my-2 border-t border-slate-100 dark:border-slate-700" />
+            <div className="flex items-center justify-between px-3 py-2">
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Theme</span>
+              <ThemeToggle />
+            </div>
+            <div className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-300">
               <User className="h-5 w-5" aria-hidden="true" />
               <span>{user.name || user.email}</span>
-              <span className="ml-auto rounded-full bg-primary-100 px-2 py-0.5 text-xs font-bold uppercase text-primary-700">
+              <span className="ml-auto rounded-full bg-primary-100 px-2 py-0.5 text-xs font-bold uppercase text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">
                 {user.role}
               </span>
             </div>
