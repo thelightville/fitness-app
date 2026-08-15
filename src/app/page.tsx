@@ -105,7 +105,8 @@ export default function HomePage() {
 
       <footer className="border-t border-slate-200 bg-white py-8">
         <div className="mx-auto max-w-7xl px-4 text-center text-sm text-slate-500 sm:px-6 lg:px-8">
-          © {new Date().getFullYear()} Fitness PT Tracker. All rights reserved.
+          <p>© {new Date().getFullYear()} Fitness PT Tracker. All rights reserved.</p>
+          <p className="mt-2 text-xs text-slate-400">Developed by Waju</p>
         </div>
       </footer>
     </div>

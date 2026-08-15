@@ -118,6 +118,8 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+
+        <p className="text-center text-xs text-slate-400">Developed by Waju</p>
       </div>
     </div>
   );

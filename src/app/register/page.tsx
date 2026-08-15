@@ -186,6 +186,8 @@ export default function RegisterPage() {
             </Link>
           </p>
         </div>
+
+        <p className="text-center text-xs text-slate-400">Developed by Waju</p>
       </div>
     </div>
   );

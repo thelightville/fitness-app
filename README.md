@@ -51,6 +51,10 @@ Seed accounts:
 - [Deployment](docs/deployment.md)
 - [Contributing](CONTRIBUTING.md)
 
+## Credits
+
+Developed by Waju.
+
 ## License
 
 MIT
