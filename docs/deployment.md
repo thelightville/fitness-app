@@ -36,6 +36,37 @@ This starts the Next.js app and PostgreSQL. The first time, run migrations:
 docker compose exec app npx prisma migrate deploy
 ```
 
+## CT117 Docker Hosting Platform
+
+For deployment on Thelightville's CT117 Docker host:
+
+1. Ensure the site directory exists:
+   ```bash
+   mkdir -p /opt/docker-sites/fitness.myapps.com.ng
+   cd /opt/docker-sites/fitness.myapps.com.ng
+   git clone https://github.com/thelightville/fitness-app.git .
+   ```
+
+2. Copy and configure the production environment:
+   ```bash
+   cp .env.ct117.example .env
+   # Edit .env and set strong passwords/secrets
+   ```
+
+3. Run the deploy script:
+   ```bash
+   ./scripts/deploy-ct117.sh
+   ```
+
+This builds the app, starts PostgreSQL, runs migrations/seeds, and registers metadata with the hosting API.
+
+### CT117 Notes
+
+- The app binds to `HOST_PORT` (default `8054`) on `172.16.16.117`.
+- Outbound email uses the internal SMTP gateway at `172.16.16.125:587` (no auth required).
+- Cloudflare DNS CNAME and PVE tunnel routes must point `fitness.myapps.com.ng` to `http://172.16.16.117:8054`.
+- The deploy script saves `.hosting-meta.json` for the provisioning API.
+
 ## Environment Variables
 
 | Variable | Description |
