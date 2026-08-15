@@ -64,8 +64,21 @@ This builds the app, starts PostgreSQL, runs migrations/seeds, and registers met
 
 - The app binds to `HOST_PORT` (default `8054`) on `172.16.16.117`.
 - Outbound email uses the internal SMTP gateway at `172.16.16.125:587` (no auth required).
-- Cloudflare DNS CNAME and PVE tunnel routes must point `fitness.myapps.com.ng` to `http://172.16.16.117:8054`.
+- Cloudflare DNS CNAME and PVE tunnel routes point `fitness.myapps.com.ng` to `http://172.16.16.117:8054`.
 - The deploy script saves `.hosting-meta.json` for the provisioning API.
+- A cron job in `/etc/cron.d/fitness-reminders` calls `/api/cron/reminders` every 5 minutes.
+
+### CT117 Deployment Status
+
+| Component | Status |
+|-----------|--------|
+| App container | Healthy on `0.0.0.0:8054` |
+| Database | Healthy, migrations applied |
+| Public URL | https://fitness.myapps.com.ng |
+| DNS CNAME | `fitness.myapps.com.ng` → Cloudflare tunnel |
+| Tunnel route | `fitness.myapps.com.ng` → `http://172.16.16.117:8054` |
+| Reminder cron | Every 5 minutes |
+| Hosting meta | `/opt/docker-sites/fitness.myapps.com.ng/.hosting-meta.json` |
 
 ## Environment Variables
 
