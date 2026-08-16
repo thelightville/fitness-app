@@ -61,7 +61,10 @@ Admins can:
 - Track client progress (`/dashboard/admin/clients/:id/measurements`): record weight, body fat, waist, chest, arms, and notes
 - Manage trainers (`/dashboard/admin/trainers`): add, edit, deactivate, set bio/specialties
 - Manage gym locations (`/dashboard/admin/gyms`): add, edit, remove, set check-in radius
+- Manage administrators (`/dashboard/admin/admins`): create admins, reset passwords, deactivate accounts
 - Manage all appointments
+
+All logged-in users can change their own password from `/dashboard/settings`.
 
 ## Documentation
 

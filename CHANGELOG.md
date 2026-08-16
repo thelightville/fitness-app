@@ -12,13 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Client progress tracking: admins and trainers can record client measurements (weight, body fat, waist, chest, arms) with notes and date.
 - Admin client measurements page at `/dashboard/admin/clients/[id]/measurements` with history table and weight trend chart.
 - Client-facing progress page at `/dashboard/measurements` with latest stats, trend chart, and full measurement history.
+- Admin management page at `/dashboard/admin/admins`: create admins, reset passwords, deactivate accounts (self-deactivation blocked).
+- Account settings page at `/dashboard/settings` for all users to change their own password.
 - New API routes:
   - `GET /api/clients/[id]/measurements`
   - `POST /api/clients/[id]/measurements`
   - `DELETE /api/clients/[id]/measurements/[measurementId]`
   - `GET /api/me/measurements`
+  - `PATCH /api/me`
   - `GET /api/admin/users/[id]`
+  - `GET /api/admin/admins`
+  - `POST /api/admin/admins`
+  - `PATCH /api/admin/admins`
+  - `DELETE /api/admin/admins`
 - "Progress" link in the dashboard navigation for clients.
+- "Settings" link in the dashboard navigation for all users.
+- "Admins" link in the admin sub-navigation.
 - "View progress" action in the admin clients list.
 
 ## [0.1.0] - 2026-08-12

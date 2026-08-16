@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Users, Dumbbell, MapPin, BarChart3 } from 'lucide-react';
+import { Users, Dumbbell, MapPin, BarChart3, Shield } from 'lucide-react';
 
 const links = [
   { href: '/dashboard/admin', label: 'Analytics', icon: BarChart3 },
   { href: '/dashboard/admin/clients', label: 'Clients', icon: Users },
   { href: '/dashboard/admin/trainers', label: 'Trainers', icon: Dumbbell },
   { href: '/dashboard/admin/gyms', label: 'Gyms', icon: MapPin },
+  { href: '/dashboard/admin/admins', label: 'Admins', icon: Shield },
 ];
 
 export function AdminSubNav() {
