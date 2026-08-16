@@ -25,6 +25,26 @@ function requireAdmin(session: any) {
   return null;
 }
 
+export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+  const session = await auth();
+  const denied = requireAdmin(session);
+  if (denied) return denied;
+
+  const user = await prisma.user.findUnique({
+    where: { id: params.id },
+    include: {
+      client: { select: { id: true, active: true, goals: true } },
+      trainer: { select: { id: true, active: true, bio: true, specialties: true } },
+    },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  return NextResponse.json(user);
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await auth();
   const denied = requireAdmin(session);

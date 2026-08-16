@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useState } from 'react';
-import { Dumbbell, LayoutDashboard, CalendarDays, BarChart3, Menu, X, LogOut, User } from 'lucide-react';
+import { Dumbbell, LayoutDashboard, CalendarDays, BarChart3, Menu, X, LogOut, User, TrendingUp } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 export function DashboardNav({ user }: { user: { name?: string | null; email?: string | null; role?: string } }) {
@@ -15,6 +15,10 @@ export function DashboardNav({ user }: { user: { name?: string | null; email?: s
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/dashboard/appointments', label: 'Appointments', icon: CalendarDays },
   ];
+
+  if (user.role === 'CLIENT') {
+    links.push({ href: '/dashboard/measurements', label: 'Progress', icon: TrendingUp });
+  }
 
   if (user.role === 'ADMIN') {
     links.push({ href: '/dashboard/admin', label: 'Admin', icon: BarChart3 });

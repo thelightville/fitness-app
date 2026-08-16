@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { UserRole } from '@prisma/client';
 import { PageHeader } from '@/components/ui/page-header';
 import { Spinner } from '@/components/ui/spinner';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Users, Plus, Pencil, Trash2, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Users, Plus, Pencil, Trash2, X, CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react';
 
 interface User {
   id: string;
@@ -265,6 +266,14 @@ export default function AdminClientsPage() {
                   <td className="table-cell dark:text-slate-300">{new Date(user.createdAt).toLocaleDateString()}</td>
                   <td className="table-cell">
                     <div className="flex items-center gap-2">
+                      <Link
+                        href={`/dashboard/admin/clients/${user.client?.id}/measurements`}
+                        className="btn-ghost p-2"
+                        aria-label="View progress"
+                        title="View progress"
+                      >
+                        <TrendingUp className="h-4 w-4" aria-hidden="true" />
+                      </Link>
                       <button onClick={() => startEdit(user)} className="btn-ghost p-2">
                         <Pencil className="h-4 w-4" aria-hidden="true" />
                       </button>

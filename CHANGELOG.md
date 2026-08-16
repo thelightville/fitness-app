@@ -1,0 +1,28 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+
+- Client progress tracking: admins and trainers can record client measurements (weight, body fat, waist, chest, arms) with notes and date.
+- Admin client measurements page at `/dashboard/admin/clients/[id]/measurements` with history table and weight trend chart.
+- Client-facing progress page at `/dashboard/measurements` with latest stats, trend chart, and full measurement history.
+- New API routes:
+  - `GET /api/clients/[id]/measurements`
+  - `POST /api/clients/[id]/measurements`
+  - `DELETE /api/clients/[id]/measurements/[measurementId]`
+  - `GET /api/me/measurements`
+  - `GET /api/admin/users/[id]`
+- "Progress" link in the dashboard navigation for clients.
+- "View progress" action in the admin clients list.
+
+## [0.1.0] - 2026-08-12
+
+### Added
+
+- Initial release of Fitness PT Tracker with appointment scheduling, check-in, workout logging, reminders, admin management, and dark mode.

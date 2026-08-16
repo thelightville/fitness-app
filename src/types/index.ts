@@ -31,3 +31,16 @@ export interface TrainerUtilization {
   totalSessions: number;
   completedSessions: number;
 }
+
+export interface Measurement {
+  id: string;
+  clientId: string;
+  weightKg: number | null;
+  bodyFatPct: number | null;
+  waistCm: number | null;
+  chestCm: number | null;
+  armsCm: number | null;
+  notes: string | null;
+  measuredAt: string;
+  createdAt: string;
+}

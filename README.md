@@ -14,6 +14,7 @@ Fitness PT Tracker helps personal trainers and clients schedule, confirm, attend
 - **Reminders:** automated email reminders before sessions
 - **Location check-in:** verify the client is at the gym via browser geolocation
 - **Workout logging:** record workout type, exercises, duration, intensity, and notes
+- **Progress tracking:** log and visualize client measurements (weight, body fat, waist, chest, arms) over time
 - **Dashboard analytics:** attendance trends, no-show rates, trainer utilization, workout breakdown
 - **Admin management:** full CRUD for clients, trainers, and gym locations
 - **Dark mode:** system-aware theme toggle
@@ -57,6 +58,7 @@ Admins can:
 
 - View analytics and reports
 - Manage clients (`/dashboard/admin/clients`): add, edit, deactivate
+- Track client progress (`/dashboard/admin/clients/:id/measurements`): record weight, body fat, waist, chest, arms, and notes
 - Manage trainers (`/dashboard/admin/trainers`): add, edit, deactivate, set bio/specialties
 - Manage gym locations (`/dashboard/admin/gyms`): add, edit, remove, set check-in radius
 - Manage all appointments
