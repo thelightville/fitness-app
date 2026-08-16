@@ -7,7 +7,7 @@ import { logAudit } from '@/lib/audit';
 
 const createSchema = z.object({
   trainerId: z.string().cuid(),
-  gymLocationId: z.string().cuid(),
+  gymLocationId: z.string().min(1),
   startsAt: z.string().datetime(),
   endsAt: z.string().datetime(),
 });
