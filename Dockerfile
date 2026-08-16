@@ -1,37 +1,19 @@
 # syntax=docker/dockerfile:1
 
-FROM node:20-slim AS base
+FROM node:20-bullseye-slim AS base
 
-# Install dependencies only when needed
-FROM base AS deps
-WORKDIR /app
-
-COPY package.json package-lock.json* ./
-RUN npm ci
-
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-
-ENV NEXT_TELEMETRY_DISABLED 1
-
-RUN npx prisma generate
-RUN npm run build
-
-# Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV PRISMA_CLIENT_ENGINE_TYPE binary
+ENV PRISMA_QUERY_ENGINE_BINARY /app/node_modules/.prisma/client/query-engine-debian-openssl-1.1.x
 
 RUN groupadd --system --gid 1001 nodejs && useradd --system --uid 1001 --gid nodejs nextjs
 
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --chown=nextjs:nodejs .next/standalone ./
+COPY --chown=nextjs:nodejs .next/static ./.next/static
 
 USER nextjs
 
