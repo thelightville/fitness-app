@@ -69,10 +69,13 @@ export default function AdminClientsPage() {
     setError('');
     setSuccess('');
 
-    const payload = { ...form, role: UserRole.CLIENT };
+    const payload: any = { ...form, role: UserRole.CLIENT };
     if (!editing && !payload.password) {
       setError('Password is required for new users');
       return;
+    }
+    if (editing && !payload.password) {
+      delete payload.password;
     }
 
     const url = editing ? `/api/admin/users/${editing.id}` : '/api/admin/users';

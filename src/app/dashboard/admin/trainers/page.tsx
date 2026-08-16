@@ -82,6 +82,9 @@ export default function AdminTrainersPage() {
       setError('Password is required for new users');
       return;
     }
+    if (editing && !payload.password) {
+      delete payload.password;
+    }
 
     const url = editing ? `/api/admin/users/${editing.id}` : '/api/admin/users';
     const method = editing ? 'PATCH' : 'POST';
