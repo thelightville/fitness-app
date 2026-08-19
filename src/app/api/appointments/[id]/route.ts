@@ -14,6 +14,12 @@ const updateSchema = z.object({
   endsAt: z.string().datetime().optional(),
 });
 
+const cancellableStatuses: AppointmentStatus[] = [
+  AppointmentStatus.PENDING,
+  AppointmentStatus.CONFIRMED,
+  AppointmentStatus.RESCHEDULED,
+];
+
 async function getAppointmentContext(id: string, userId: string, role: UserRole) {
   const appointment = await prisma.appointment.findUnique({
     where: { id },
@@ -77,6 +83,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: 'Only trainers can confirm appointments' }, { status: 403 });
   }
 
+  if (status === AppointmentStatus.CANCELLED && !cancellableStatuses.includes(ctx.appointment.status)) {
+    return NextResponse.json({ error: 'Only pending, confirmed, or rescheduled appointments can be cancelled' }, { status: 409 });
+  }
+
+  if (status === AppointmentStatus.NO_SHOW && session.user.role === UserRole.CLIENT) {
+    return NextResponse.json({ error: 'Only trainers can mark no-shows' }, { status: 403 });
+  }
+
   const data: any = { status };
   if (cancellationReason) data.cancellationReason = cancellationReason;
   if (rescheduleReason) data.rescheduleReason = rescheduleReason;
@@ -92,11 +106,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       gymLocation: true,
     },
   });
-if (status === AppointmentStatus.CONFIRMED) {
+  if (status === AppointmentStatus.CONFIRMED) {
     await createRemindersForAppointment(appointment.id);
   }
 
-  
   await logAudit({
     actorId: session.user.id,
     entityType: 'appointment',

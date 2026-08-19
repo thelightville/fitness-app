@@ -184,6 +184,16 @@ export default function AppointmentDetailPage() {
     window.open(`/api/appointments/${id}/calendar`, '_blank');
   }
 
+  function canCancel(status: AppointmentStatus) {
+    const cancellableStatuses: AppointmentStatus[] = [
+      AppointmentStatus.PENDING,
+      AppointmentStatus.CONFIRMED,
+      AppointmentStatus.RESCHEDULED,
+    ];
+
+    return cancellableStatuses.includes(status);
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
@@ -305,6 +315,12 @@ export default function AppointmentDetailPage() {
               Confirm
             </button>
           )}
+          {canCancel(appointment.status) && (
+            <button onClick={() => updateStatus(AppointmentStatus.CANCELLED)} className="btn-danger">
+              <XCircle className="h-4 w-4" aria-hidden="true" />
+              Cancel
+            </button>
+          )}
           {appointment.status === AppointmentStatus.CONFIRMED && (
             <>
               {isClient && (
@@ -319,14 +335,12 @@ export default function AppointmentDetailPage() {
                   Manual Check-In
                 </button>
               )}
-              <button onClick={() => updateStatus(AppointmentStatus.CANCELLED)} className="btn-danger">
-                <XCircle className="h-4 w-4" aria-hidden="true" />
-                Cancel
-              </button>
-              <button onClick={() => updateStatus(AppointmentStatus.NO_SHOW)} className="btn-secondary">
-                <UserX className="h-4 w-4" aria-hidden="true" />
-                Mark No-Show
-              </button>
+              {(isTrainer || isAdmin) && (
+                <button onClick={() => updateStatus(AppointmentStatus.NO_SHOW)} className="btn-secondary">
+                  <UserX className="h-4 w-4" aria-hidden="true" />
+                  Mark No-Show
+                </button>
+              )}
             </>
           )}
         </div>

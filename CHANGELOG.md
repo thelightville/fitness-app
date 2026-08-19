@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restored public page freshness for `/`, `/login`, and `/register` by forcing dynamic rendering and no-store headers.
 - Improved dashboard dark-mode contrast so appointment details, navigation, cards, labels, and supporting text remain readable.
 - Updated CT117 Docker Compose runtime networking so the app uses the internal Postgres service and remains published on port `8054`.
+- Updated trainer dashboards and appointment actions so assigned appointments remain visible and pending appointments can be cancelled by either party.
 
 ### Added
 
