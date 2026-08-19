@@ -23,9 +23,7 @@ async function getDashboardData(userId: string, role: UserRole) {
     where.trainerId = trainer.id;
   }
 
-  const now = new Date();
-
-  const [stats, upcoming, recent] = await Promise.all([
+  const [stats, dashboardAppointments, recent] = await Promise.all([
     prisma.appointment.groupBy({
       by: ['status'],
       where,
@@ -34,10 +32,9 @@ async function getDashboardData(userId: string, role: UserRole) {
     prisma.appointment.findMany({
       where: {
         ...where,
-        startsAt: { gte: now },
         status: { notIn: [AppointmentStatus.CANCELLED, AppointmentStatus.NO_SHOW] },
       },
-      orderBy: { startsAt: 'asc' },
+      orderBy: { startsAt: 'desc' },
       take: 5,
       include: {
         client: { include: { user: { select: { name: true, email: true } } } },
@@ -68,7 +65,7 @@ async function getDashboardData(userId: string, role: UserRole) {
     cancelled,
     noShow,
     completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
-    upcoming,
+    dashboardAppointments,
     recent,
   };
 }
@@ -127,21 +124,21 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between">
             <h2 className="section-title flex items-center gap-2">
               <Clock className="h-5 w-5 text-primary-600" aria-hidden="true" />
-              Upcoming Appointments
+              Appointments
             </h2>
             <Link href="/dashboard/appointments" className="text-sm font-semibold text-primary-600 hover:text-primary-700">
               View all
             </Link>
           </div>
           <div className="mt-4 space-y-3">
-            {data.upcoming.length === 0 && (
+            {data.dashboardAppointments.length === 0 && (
               <EmptyState
                 icon={CalendarDays}
-                title="No upcoming appointments"
-                description="Your schedule is clear. Book a new session to get started."
+                title="No appointments found"
+                description="Appointments assigned to you will appear here."
               />
             )}
-            {data.upcoming.map((appt) => (
+            {data.dashboardAppointments.map((appt) => (
               <Link
                 key={appt.id}
                 href={`/dashboard/appointments/${appt.id}`}

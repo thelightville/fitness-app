@@ -112,6 +112,16 @@ export default function AppointmentsPage() {
     if (res.ok) fetchAppointments();
   }
 
+  function canCancel(status: AppointmentStatus) {
+    const cancellableStatuses: AppointmentStatus[] = [
+      AppointmentStatus.PENDING,
+      AppointmentStatus.CONFIRMED,
+      AppointmentStatus.RESCHEDULED,
+    ];
+
+    return cancellableStatuses.includes(status);
+  }
+
   return (
     <div className="space-y-8 animate-fade-in">
       <PageHeader
@@ -270,7 +280,7 @@ export default function AppointmentsPage() {
                             Confirm
                           </button>
                         )}
-                        {appt.status === AppointmentStatus.CONFIRMED && (
+                        {canCancel(appt.status) && (
                           <button
                             onClick={() => updateStatus(appt.id, AppointmentStatus.CANCELLED)}
                             className="inline-flex items-center gap-1 text-sm font-semibold text-red-600 hover:text-red-700"
