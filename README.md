@@ -29,7 +29,6 @@ Fitness PT Tracker helps personal trainers and clients schedule, confirm, attend
 - NextAuth v5
 - Tailwind CSS
 - Recharts
-- Expo React Native mobile app under `mobile/`
 
 ## Quick Start
 
@@ -71,7 +70,7 @@ All logged-in users can change their own password from `/dashboard/settings`.
 
 - [Architecture](docs/architecture.md)
 - [Deployment](docs/deployment.md)
-- [Mobile App](mobile/README.md)
+- [Mobile Roadmap](docs/mobile-roadmap.md)
 - [Contributing](CONTRIBUTING.md)
 
 ### Dark mode

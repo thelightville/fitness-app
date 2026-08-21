@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Expo React Native mobile app scaffold under `mobile/` for iOS and Android builds.
+- Native iOS/Android mobile product roadmap and remote MacBook build plan.
 - Client progress tracking: admins and trainers can record client measurements (weight, body fat, waist, chest, arms) with notes and date.
 - Admin client measurements page at `/dashboard/admin/clients/[id]/measurements` with history table and weight trend chart.
 - Client-facing progress page at `/dashboard/measurements` with latest stats, trend chart, and full measurement history.
