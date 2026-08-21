@@ -8,6 +8,15 @@ Deliver a fast, reliable mobile companion for clients and personal trainers to m
 
 The mobile app should feel like a focused operational tool, not a marketing wrapper around the website. The web app remains the admin-heavy console; the mobile app prioritizes daily trainer/client workflows.
 
+## Implementation Status
+
+- React Native CLI app has been scaffolded under `mobile/` with bundle/package ID `ng.myapps.fitness`.
+- Phase 1 mobile auth is implemented through `/api/mobile/auth/*`, `/api/mobile/me`, and the `MobileSession` database model.
+- Phase 2 appointment MVP is implemented for dashboard, appointment list/detail, booking API, confirm/cancel status updates, and role ownership checks.
+- Phase 3 backend check-in and workout logging endpoints are implemented; the native MVP includes GPS check-in.
+- Phase 4 progress and push notifications remain future work.
+- Remote MacBook Android/iOS native builds still need final validation after the branch is synced there.
+
 ## Recommended Build Approach
 
 - Framework: React Native CLI with TypeScript, not Expo.

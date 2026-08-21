@@ -16,6 +16,7 @@ Fitness PT Tracker helps personal trainers and clients schedule, confirm, attend
 - **Workout logging:** record workout type, exercises, duration, intensity, and notes
 - **Progress tracking:** log and visualize client measurements (weight, body fat, waist, chest, arms) over time
 - **Dashboard analytics:** attendance trends, no-show rates, trainer utilization, workout breakdown
+- **Native mobile app:** React Native CLI iOS/Android client for sign-in, dashboards, appointment actions, and gym check-in
 - **Admin management:** full CRUD for clients, trainers, and gym locations
 - **Dark mode:** system-aware theme toggle
 - **Audit logs:** track who changed what and when
@@ -29,6 +30,7 @@ Fitness PT Tracker helps personal trainers and clients schedule, confirm, attend
 - NextAuth v5
 - Tailwind CSS
 - Recharts
+- React Native CLI mobile app under `mobile/`
 
 ## Quick Start
 
@@ -71,6 +73,7 @@ All logged-in users can change their own password from `/dashboard/settings`.
 - [Architecture](docs/architecture.md)
 - [Deployment](docs/deployment.md)
 - [Mobile Roadmap](docs/mobile-roadmap.md)
+- [Mobile App](mobile/README.md)
 - [Contributing](CONTRIBUTING.md)
 
 ### Dark mode
