@@ -11,6 +11,9 @@ Native iOS and Android app for Fitness PT Tracker. This app uses React Native CL
 - Trainer appointment confirmation.
 - Client/trainer appointment cancellation before or after confirmation where the backend allows it.
 - Native GPS appointment check-in through `@react-native-community/geolocation`.
+- Automatic access-session refresh using the mobile refresh session.
+- Client progress tab for latest measurements and workout history.
+- Trainer workout logging from appointment detail.
 
 ## Local Commands
 
@@ -59,8 +62,9 @@ The mobile app calls the dedicated mobile API surface in the Next.js backend:
 - `PATCH /api/mobile/appointments/:id/status`
 - `POST /api/mobile/appointments/:id/checkin`
 - `POST /api/mobile/appointments/:id/workout`
+- `GET /api/mobile/progress`
 
-Mobile access sessions are short-lived opaque bearer tokens. Refresh credentials are stored only as hashes in the backend database.
+Mobile access sessions are short-lived opaque bearer tokens. Refresh credentials are stored only as hashes in the backend database, and mobile login/refresh endpoints are rate limited in the app process.
 
 ## Security Notes
 

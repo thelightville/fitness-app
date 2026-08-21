@@ -23,6 +23,8 @@ const queryClient = new QueryClient();
 
 type UserRole = 'CLIENT' | 'TRAINER' | 'ADMIN';
 type AppointmentStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'RESCHEDULED' | 'CHECKED_IN' | 'COMPLETED' | 'NO_SHOW';
+type WorkoutType = 'STRENGTH' | 'CARDIO' | 'MOBILITY' | 'HIIT' | 'ENDURANCE' | 'REHABILITATION' | 'ASSESSMENT' | 'CUSTOM';
+type ActiveView = 'appointments' | 'progress';
 
 interface UserProfile {
   id: string;
@@ -35,6 +37,7 @@ interface MobileSession {
   accessToken: string;
   refreshToken: string;
   accessExpiresAt: string;
+  refreshExpiresAt?: string;
   user: UserProfile;
 }
 
@@ -57,9 +60,50 @@ interface Appointment {
   startsAt: string;
   endsAt: string;
   status: AppointmentStatus;
-  client: { user: { name: string | null; email: string } };
-  trainer: { user: { name: string | null; email: string } };
+  client: { id: string; user: { name: string | null; email: string } };
+  trainer: { id: string; user: { name: string | null; email: string } };
   gymLocation: { name: string; address: string | null; latitude: number; longitude: number; checkInRadiusMeters: number };
+  workoutLog?: WorkoutLog | null;
+}
+
+interface Measurement {
+  id: string;
+  weightKg: number | null;
+  bodyFatPct: number | null;
+  waistCm: number | null;
+  chestCm: number | null;
+  armsCm: number | null;
+  notes: string | null;
+  measuredAt: string;
+}
+
+interface WorkoutLog {
+  id: string;
+  workoutType: WorkoutType;
+  durationMinutes: number;
+  intensity: number | null;
+  notes: string | null;
+  clientFeedback?: string | null;
+  completedAt: string;
+  appointment?: {
+    startsAt: string;
+    trainer: { user: { name: string | null; email: string } };
+    gymLocation: { name: string };
+  };
+}
+
+interface WorkoutPayload {
+  workoutType: WorkoutType;
+  durationMinutes: number;
+  intensity?: number;
+  notes?: string;
+}
+
+interface ProgressData {
+  client: { id: string; name: string | null; email: string };
+  latestMeasurement: Measurement | null;
+  measurements: Measurement[];
+  workoutLogs: WorkoutLog[];
 }
 
 function App() {
@@ -104,6 +148,32 @@ async function apiRequest<T>(path: string, options: RequestInit = {}, session?: 
     throw new Error(body.error || `Request failed with ${response.status}`);
   }
   return body as T;
+}
+
+async function refreshMobileSession(session: MobileSession): Promise<MobileSession> {
+  return apiRequest<MobileSession>('/api/mobile/auth/refresh', {
+    method: 'POST',
+    body: JSON.stringify({ refreshToken: session.refreshToken }),
+  });
+}
+
+async function authenticatedRequest<T>(
+  path: string,
+  options: RequestInit,
+  session: MobileSession,
+  onSessionChange: (session: MobileSession | null) => Promise<void>
+): Promise<T> {
+  try {
+    return await apiRequest<T>(path, options, session);
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.toLowerCase().includes('unauthorized')) {
+      throw error;
+    }
+
+    const refreshedSession = await refreshMobileSession(session);
+    await onSessionChange(refreshedSession);
+    return apiRequest<T>(path, options, refreshedSession);
+  }
 }
 
 function MobileApp() {
@@ -200,21 +270,29 @@ function LoginScreen({ onSessionChange }: { onSessionChange: (session: MobileSes
 }
 
 function DashboardScreen({ session, onSessionChange }: { session: MobileSession; onSessionChange: (session: MobileSession | null) => Promise<void> }) {
+  const [activeView, setActiveView] = useState<ActiveView>('appointments');
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const queryClientInstance = useQueryClient();
+  const request = <T,>(path: string, options: RequestInit = {}) => authenticatedRequest<T>(path, options, session, onSessionChange);
   const dashboardQuery = useQuery({
     queryKey: ['dashboard', session.user.id],
-    queryFn: () => apiRequest<DashboardData>('/api/mobile/dashboard', {}, session),
+    queryFn: () => request<DashboardData>('/api/mobile/dashboard'),
   });
 
   const appointmentsQuery = useQuery({
     queryKey: ['appointments', session.user.id],
-    queryFn: () => apiRequest<Appointment[]>('/api/mobile/appointments?limit=50', {}, session),
+    queryFn: () => request<Appointment[]>('/api/mobile/appointments?limit=50'),
+  });
+
+  const progressQuery = useQuery({
+    queryKey: ['progress', session.user.id],
+    queryFn: () => request<ProgressData>('/api/mobile/progress'),
+    enabled: session.user.role === 'CLIENT',
   });
 
   const statusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: AppointmentStatus }) =>
-      apiRequest<Appointment>(`/api/mobile/appointments/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }, session),
+      request<Appointment>(`/api/mobile/appointments/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
     onSuccess: async (appointment) => {
       setSelectedAppointment(appointment);
       await queryClientInstance.invalidateQueries({ queryKey: ['dashboard', session.user.id] });
@@ -224,12 +302,30 @@ function DashboardScreen({ session, onSessionChange }: { session: MobileSession;
   });
 
   const checkInMutation = useMutation({
-    mutationFn: (appointmentId: string) => checkInWithLocation(appointmentId, session),
+    mutationFn: (appointmentId: string) => checkInWithLocation(appointmentId, session, onSessionChange),
     onSuccess: async () => {
       await queryClientInstance.invalidateQueries({ queryKey: ['appointments', session.user.id] });
       Alert.alert('Check-in sent', 'Your location check-in has been submitted.');
     },
     onError: (error) => Alert.alert('Unable to check in', error.message),
+  });
+
+  const workoutMutation = useMutation({
+    mutationFn: ({ appointmentId, workout }: { appointmentId: string; workout: WorkoutPayload }) =>
+      request<WorkoutLog>(`/api/mobile/appointments/${appointmentId}/workout`, { method: 'POST', body: JSON.stringify(workout) }),
+    onSuccess: async () => {
+      setSelectedAppointment(null);
+      await queryClientInstance.invalidateQueries({ queryKey: ['dashboard', session.user.id] });
+      await queryClientInstance.invalidateQueries({ queryKey: ['appointments', session.user.id] });
+      await queryClientInstance.invalidateQueries({ queryKey: ['progress', session.user.id] });
+      Alert.alert('Workout logged', 'The appointment has been marked complete.');
+    },
+    onError: (error) => Alert.alert('Unable to log workout', error.message),
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: () => request<{ success: boolean }>('/api/mobile/auth/logout', { method: 'POST' }),
+    onSettled: () => onSessionChange(null),
   });
 
   const appointments = appointmentsQuery.data ?? [];
@@ -247,6 +343,7 @@ function DashboardScreen({ session, onSessionChange }: { session: MobileSession;
         onCancel={() => statusMutation.mutate({ id: selectedAppointment.id, status: 'CANCELLED' })}
         onCheckIn={() => checkInMutation.mutate(selectedAppointment.id)}
         onConfirm={() => statusMutation.mutate({ id: selectedAppointment.id, status: 'CONFIRMED' })}
+        onLogWorkout={(workout) => workoutMutation.mutate({ appointmentId: selectedAppointment.id, workout })}
       />
     );
   }
@@ -258,12 +355,19 @@ function DashboardScreen({ session, onSessionChange }: { session: MobileSession;
           <Text style={styles.eyebrow}>{session.user.role}</Text>
           <Text style={styles.headerTitle}>{session.user.name || session.user.email}</Text>
         </View>
-        <Pressable onPress={() => onSessionChange(null)} style={styles.ghostButton}>
-          <Text style={styles.ghostButtonText}>Sign out</Text>
+        <Pressable onPress={() => logoutMutation.mutate()} style={styles.ghostButton}>
+          <Text style={styles.ghostButtonText}>{logoutMutation.isPending ? 'Signing out' : 'Sign out'}</Text>
         </Pressable>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
+        {session.user.role === 'CLIENT' && (
+          <View style={styles.segmentedControl}>
+            <SegmentButton active={activeView === 'appointments'} label="Appointments" onPress={() => setActiveView('appointments')} />
+            <SegmentButton active={activeView === 'progress'} label="Progress" onPress={() => setActiveView('progress')} />
+          </View>
+        )}
+
         <View style={styles.statsGrid}>
           <MetricCard label="Total" value={dashboardQuery.data?.stats.totalAppointments ?? 0} />
           <MetricCard label="Upcoming" value={dashboardQuery.data?.stats.upcomingAppointments ?? 0} />
@@ -271,45 +375,52 @@ function DashboardScreen({ session, onSessionChange }: { session: MobileSession;
           <MetricCard label="No-show" value={`${dashboardQuery.data?.stats.noShowRate ?? 0}%`} />
         </View>
 
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Appointments</Text>
-          <Pressable onPress={() => appointmentsQuery.refetch()}>
-            <Text style={styles.linkText}>Refresh</Text>
-          </Pressable>
-        </View>
+        {activeView === 'progress' && session.user.role === 'CLIENT' ? (
+          <ProgressScreen data={progressQuery.data} loading={progressQuery.isLoading} onRefresh={() => progressQuery.refetch()} />
+        ) : (
+          <>
 
-        <FlatList
-          data={appointments}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <AppointmentRow
-              appointment={item}
-              isClient={session.user.role === 'CLIENT'}
-              onPress={() => setSelectedAppointment(item)}
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Appointments</Text>
+              <Pressable onPress={() => appointmentsQuery.refetch()}>
+                <Text style={styles.linkText}>Refresh</Text>
+              </Pressable>
+            </View>
+
+            <FlatList
+              data={appointments}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <AppointmentRow
+                  appointment={item}
+                  isClient={session.user.role === 'CLIENT'}
+                  onPress={() => setSelectedAppointment(item)}
+                />
+              )}
+              scrollEnabled={false}
+              ListEmptyComponent={<Text style={styles.emptyText}>No appointments assigned yet.</Text>}
             />
-          )}
-          scrollEnabled={false}
-          ListEmptyComponent={<Text style={styles.emptyText}>No appointments assigned yet.</Text>}
-        />
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 /** Requests native GPS coordinates and submits the Fitness check-in payload. */
-function checkInWithLocation(appointmentId: string, session: MobileSession) {
+function checkInWithLocation(appointmentId: string, session: MobileSession, onSessionChange: (session: MobileSession | null) => Promise<void>) {
   return new Promise((resolve, reject) => {
     Geolocation.requestAuthorization(
       () => {
         Geolocation.getCurrentPosition(
           (position) => {
-            apiRequest(`/api/mobile/appointments/${appointmentId}/checkin`, {
+            authenticatedRequest(`/api/mobile/appointments/${appointmentId}/checkin`, {
               method: 'POST',
               body: JSON.stringify({
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude,
               }),
-            }, session)
+            }, session, onSessionChange)
               .then(resolve)
               .catch(reject);
           },
@@ -320,6 +431,75 @@ function checkInWithLocation(appointmentId: string, session: MobileSession) {
       reject
     );
   });
+}
+
+function SegmentButton({ active, label, onPress }: { active: boolean; label: string; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} style={[styles.segmentButton, active && styles.segmentButtonActive]}>
+      <Text style={[styles.segmentButtonText, active && styles.segmentButtonTextActive]}>{label}</Text>
+    </Pressable>
+  );
+}
+
+function ProgressScreen({ data, loading, onRefresh }: { data?: ProgressData; loading: boolean; onRefresh: () => void }) {
+  if (loading) {
+    return <Text style={styles.emptyText}>Loading progress...</Text>;
+  }
+
+  const latest = data?.latestMeasurement;
+  return (
+    <View style={styles.panelStack}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Progress</Text>
+        <Pressable onPress={onRefresh}>
+          <Text style={styles.linkText}>Refresh</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.infoBlock}>
+        <Text style={styles.infoLabel}>Latest measurement</Text>
+        {latest ? (
+          <View style={styles.measurementGrid}>
+            <MiniMetric label="Weight" value={formatOptionalNumber(latest.weightKg, 'kg')} />
+            <MiniMetric label="Body fat" value={formatOptionalNumber(latest.bodyFatPct, '%')} />
+            <MiniMetric label="Waist" value={formatOptionalNumber(latest.waistCm, 'cm')} />
+            <MiniMetric label="Chest" value={formatOptionalNumber(latest.chestCm, 'cm')} />
+          </View>
+        ) : (
+          <Text style={styles.emptyText}>No measurements have been logged yet.</Text>
+        )}
+      </View>
+
+      <Text style={styles.sectionTitle}>Recent workouts</Text>
+      {(data?.workoutLogs ?? []).length > 0 ? (
+        data!.workoutLogs.map((log) => <WorkoutRow key={log.id} workout={log} />)
+      ) : (
+        <Text style={styles.emptyText}>No workout logs yet.</Text>
+      )}
+    </View>
+  );
+}
+
+function MiniMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.miniMetric}>
+      <Text style={styles.miniMetricValue}>{value}</Text>
+      <Text style={styles.miniMetricLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function WorkoutRow({ workout }: { workout: WorkoutLog }) {
+  return (
+    <View style={styles.appointmentCard}>
+      <View style={styles.appointmentTopline}>
+        <Text style={styles.appointmentTime}>{workout.workoutType.replace('_', ' ')}</Text>
+        <Text style={styles.appointmentMeta}>{workout.durationMinutes} min</Text>
+      </View>
+      <Text style={styles.appointmentName}>{workout.appointment ? formatDateTime(workout.appointment.startsAt) : formatDateTime(workout.completedAt)}</Text>
+      <Text style={styles.appointmentMeta}>{workout.notes || workout.appointment?.gymLocation.name || 'Workout logged'}</Text>
+    </View>
+  );
 }
 
 function MetricCard({ label, value }: { label: string; value: number | string }) {
@@ -345,16 +525,36 @@ function AppointmentRow({ appointment, isClient, onPress }: { appointment: Appoi
   );
 }
 
-function AppointmentDetailScreen({ appointment, isClient, onBack, onCancel, onCheckIn, onConfirm }: {
+function AppointmentDetailScreen({ appointment, isClient, onBack, onCancel, onCheckIn, onConfirm, onLogWorkout }: {
   appointment: Appointment;
   isClient: boolean;
   onBack: () => void;
   onCancel: () => void;
   onCheckIn: () => void;
   onConfirm: () => void;
+  onLogWorkout: (workout: WorkoutPayload) => void;
 }) {
+  const [workoutType, setWorkoutType] = useState<WorkoutType>('STRENGTH');
+  const [durationMinutes, setDurationMinutes] = useState('45');
+  const [intensity, setIntensity] = useState('6');
+  const [notes, setNotes] = useState('');
   const counterpart = isClient ? appointment.trainer.user : appointment.client.user;
   const canCancel = ['PENDING', 'CONFIRMED', 'RESCHEDULED'].includes(appointment.status);
+  const canLogWorkout = !isClient && !appointment.workoutLog && appointment.status !== 'CANCELLED' && appointment.status !== 'NO_SHOW';
+
+  function submitWorkout() {
+    const duration = Number(durationMinutes);
+    const workoutIntensity = intensity ? Number(intensity) : undefined;
+    if (!Number.isFinite(duration) || duration < 1) {
+      Alert.alert('Duration required', 'Enter a workout duration of at least one minute.');
+      return;
+    }
+    if (workoutIntensity !== undefined && (!Number.isFinite(workoutIntensity) || workoutIntensity < 1 || workoutIntensity > 10)) {
+      Alert.alert('Intensity out of range', 'Use an intensity from 1 to 10.');
+      return;
+    }
+    onLogWorkout({ workoutType, durationMinutes: duration, intensity: workoutIntensity, notes: notes.trim() || undefined });
+  }
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -373,6 +573,23 @@ function AppointmentDetailScreen({ appointment, isClient, onBack, onCancel, onCh
 
         {!isClient && appointment.status === 'PENDING' && <PrimaryButton label="Confirm appointment" onPress={onConfirm} />}
         {isClient && appointment.status === 'CONFIRMED' && <PrimaryButton label="Check in at gym" onPress={onCheckIn} />}
+        {canLogWorkout && (
+          <View style={styles.infoBlock}>
+            <Text style={styles.infoLabel}>Log workout</Text>
+            <View style={styles.workoutTypeGrid}>
+              {(['STRENGTH', 'CARDIO', 'MOBILITY', 'HIIT'] as WorkoutType[]).map((type) => (
+                <SegmentButton key={type} active={workoutType === type} label={type} onPress={() => setWorkoutType(type)} />
+              ))}
+            </View>
+            <Text style={styles.label}>Duration minutes</Text>
+            <TextInput keyboardType="number-pad" onChangeText={setDurationMinutes} style={styles.input} value={durationMinutes} />
+            <Text style={styles.label}>Intensity 1-10</Text>
+            <TextInput keyboardType="number-pad" onChangeText={setIntensity} style={styles.input} value={intensity} />
+            <Text style={styles.label}>Notes</Text>
+            <TextInput multiline onChangeText={setNotes} placeholder="Workout notes" placeholderTextColor="#94a3b8" style={[styles.input, styles.textArea]} value={notes} />
+            <PrimaryButton label="Save workout" onPress={submitWorkout} />
+          </View>
+        )}
         {canCancel && <DangerButton label="Cancel appointment" onPress={onCancel} />}
       </ScrollView>
     </SafeAreaView>
@@ -420,6 +637,10 @@ function formatDateTime(value: string) {
     hour: 'numeric',
     minute: '2-digit',
   }).format(new Date(value));
+}
+
+function formatOptionalNumber(value: number | null, suffix: string) {
+  return value === null ? '--' : `${value}${suffix}`;
 }
 
 const styles = StyleSheet.create({
@@ -526,6 +747,33 @@ const styles = StyleSheet.create({
     padding: 18,
     gap: 16,
   },
+  segmentedControl: {
+    flexDirection: 'row',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#99f6e4',
+    backgroundColor: '#ecfeff',
+    padding: 4,
+    gap: 4,
+  },
+  segmentButton: {
+    flex: 1,
+    alignItems: 'center',
+    borderRadius: 6,
+    paddingVertical: 9,
+    paddingHorizontal: 8,
+  },
+  segmentButtonActive: {
+    backgroundColor: '#0f766e',
+  },
+  segmentButtonText: {
+    color: '#115e59',
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  segmentButtonTextActive: {
+    color: '#ffffff',
+  },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -616,6 +864,33 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 24,
   },
+  panelStack: {
+    gap: 14,
+  },
+  measurementGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 12,
+  },
+  miniMetric: {
+    minWidth: '47%',
+    flex: 1,
+    borderRadius: 8,
+    backgroundColor: '#f8fafc',
+    padding: 12,
+  },
+  miniMetricValue: {
+    color: '#0f766e',
+    fontSize: 19,
+    fontWeight: '900',
+  },
+  miniMetricLabel: {
+    marginTop: 2,
+    color: '#64748b',
+    fontSize: 12,
+    fontWeight: '800',
+  },
   detailTitle: {
     color: '#0f172a',
     fontSize: 28,
@@ -644,6 +919,17 @@ const styles = StyleSheet.create({
     color: '#0f172a',
     fontSize: 16,
     fontWeight: '700',
+  },
+  workoutTypeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+    marginTop: 12,
+  },
+  textArea: {
+    minHeight: 86,
+    textAlignVertical: 'top',
   },
   primaryButton: {
     alignItems: 'center',
