@@ -28,6 +28,8 @@ The app requires Node.js `>=22.11.0`.
 
 Builds are expected to run on the remote MacBook rather than Expo cloud services.
 
+The installed iOS simulator runtime must match the active Xcode SDK. With Xcode 26, install the iOS 26 simulator runtime from Xcode Settings > Components before running simulator builds.
+
 ```bash
 source "$HOME/Developer/scripts/mobile-ci-env.sh"
 cd "$HOME/Developer/NativeBuilds/fitness-app/mobile"
