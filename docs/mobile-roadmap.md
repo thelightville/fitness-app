@@ -13,8 +13,8 @@ The mobile app should feel like a focused operational tool, not a marketing wrap
 - React Native CLI app has been scaffolded under `mobile/` with bundle/package ID `ng.myapps.fitness`.
 - Phase 1 mobile auth is implemented through `/api/mobile/auth/*`, `/api/mobile/me`, and the `MobileSession` database model.
 - Phase 2 appointment MVP is implemented for dashboard, appointment list/detail, booking API, confirm/cancel status updates, and role ownership checks.
-- Phase 3 backend check-in and workout logging endpoints are implemented; the native MVP includes GPS check-in.
-- Phase 4 progress and push notifications remain future work.
+- Phase 3 check-in and workout logging are implemented; the native MVP includes GPS check-in and trainer workout logging.
+- Phase 4 progress is partially implemented for client measurement summary and workout history; push notifications remain future work.
 - Remote MacBook Android debug and iOS simulator builds are validated with Xcode 16.2 and the iOS 18.2 simulator runtime.
 
 ## Recommended Build Approach
@@ -91,7 +91,7 @@ Security requirements:
 - Access sessions should be short-lived.
 - Refresh sessions should be revocable and stored hashed server-side.
 - Enforce the same role ownership checks as the existing web API.
-- Rate-limit mobile login and refresh endpoints before production release.
+- Rate-limit mobile login and refresh endpoints before production release. Implemented with a process-local fixed-window limiter for the current Docker runtime.
 
 ## Native App Architecture
 
