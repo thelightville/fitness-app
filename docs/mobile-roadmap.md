@@ -15,7 +15,7 @@ The mobile app should feel like a focused operational tool, not a marketing wrap
 - Phase 2 appointment MVP is implemented for dashboard, appointment list/detail, booking API, confirm/cancel status updates, and role ownership checks.
 - Phase 3 backend check-in and workout logging endpoints are implemented; the native MVP includes GPS check-in.
 - Phase 4 progress and push notifications remain future work.
-- Remote MacBook Android debug build is validated; iOS simulator build is blocked until the MacBook installs an iOS simulator runtime matching the active Xcode SDK.
+- Remote MacBook Android debug and iOS simulator builds are validated with Xcode 16.2 and the iOS 18.2 simulator runtime.
 
 ## Recommended Build Approach
 
