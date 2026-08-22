@@ -47,6 +47,39 @@ xcodebuild -workspace FitnessPTTracker.xcworkspace -scheme FitnessPTTracker -con
 
 Adjust the checkout path if the repository is cloned elsewhere on the MacBook.
 
+## Android Release Signing
+
+Release builds must be signed with a non-committed upload keystore. The Gradle release build intentionally fails if the signing inputs are missing, so release artifacts are never produced with `debug.keystore`.
+
+Set these on the build host or pass them as Gradle properties:
+
+```bash
+export FITNESS_UPLOAD_STORE_FILE="$HOME/Developer/secrets/fitness-upload.keystore"
+export FITNESS_UPLOAD_KEY_ALIAS="fitness-upload"
+export FITNESS_UPLOAD_STORE_PASSWORD="<enter locally>"
+export FITNESS_UPLOAD_KEY_PASSWORD="<enter locally>"
+export FITNESS_ANDROID_VERSION_CODE="1"
+export FITNESS_ANDROID_VERSION_NAME="1.0.0-beta.1"
+
+cd "$HOME/Developer/NativeBuilds/fitness-app/mobile/android"
+./gradlew bundleRelease
+```
+
+Do not commit the keystore file, passwords, or generated release artifacts.
+
+## iOS Release Signing
+
+Archive from the remote MacBook with the Apple Developer account configured in Xcode. Keep provisioning profiles and export options outside git.
+
+```bash
+source "$HOME/Developer/scripts/mobile-ci-env.sh"
+cd "$HOME/Developer/NativeBuilds/fitness-app/mobile/ios"
+pod install
+xcodebuild archive -workspace FitnessPTTracker.xcworkspace -scheme FitnessPTTracker -configuration Release -destination "generic/platform=iOS" -archivePath "$HOME/Developer/Builds/FitnessPTTracker.xcarchive"
+```
+
+Use Xcode Organizer or a non-committed export options plist to upload the archive to TestFlight.
+
 ## Backend Contract
 
 The mobile app calls the dedicated mobile API surface in the Next.js backend:

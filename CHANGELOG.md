@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Native React Native CLI mobile app under `mobile/` with login, secure session storage, dashboard, appointment actions, and GPS check-in.
 - Mobile API surface under `/api/mobile/*` with hashed revocable mobile sessions, refresh rotation, rate-limited auth, role-scoped appointment/dashboard access, progress data, and workout logging.
+- Android release builds now require non-committed upload signing inputs instead of falling back to `debug.keystore`.
 - Native iOS/Android mobile product roadmap and remote MacBook build plan.
 - Client progress tracking: admins and trainers can record client measurements (weight, body fat, waist, chest, arms) with notes and date.
 - Admin client measurements page at `/dashboard/admin/clients/[id]/measurements` with history table and weight trend chart.
