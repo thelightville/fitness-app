@@ -3,6 +3,7 @@
 
 generator client {
   provider      = "prisma-client-js"
+  engineType    = "binary"
   binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
 }
 
@@ -68,6 +69,7 @@ model User {
   trainer  Trainer?
   accounts Account[]
   sessions Session[]
+  mobileSessions MobileSession[]
 
   auditLogs        AuditLog[]
   checkIns         AppointmentCheckIn[]
@@ -75,6 +77,25 @@ model User {
   createdByWorkout WorkoutLog[] // PT who logged the workout
 
   @@map("users")
+}
+
+model MobileSession {
+  id               String    @id @default(cuid())
+  userId           String    @map("user_id")
+  accessTokenHash  String    @unique @map("access_token_hash")
+  refreshTokenHash String    @unique @map("refresh_token_hash")
+  accessExpiresAt  DateTime  @map("access_expires_at")
+  refreshExpiresAt DateTime  @map("refresh_expires_at")
+  revokedAt        DateTime? @map("revoked_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([accessExpiresAt])
+  @@index([refreshExpiresAt])
+  @@map("mobile_sessions")
 }
 
 model Account {
