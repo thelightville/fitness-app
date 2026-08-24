@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Repeatable MacBook release scripts for Android signed AABs, iOS archives, and App Store Connect IPA exports, including manual iOS signing identity, keychain, and keychain unlock overrides for headless archive builds.
 - iOS AppIcon asset catalog and bundle icon metadata required for App Store Connect validation.
 - Mobile app visual storytelling assets across sign-in, dashboard, appointment, and progress screens so the native app feels more polished and real.
+- iOS build number `2` for the mobile visual-refresh TestFlight upload.
 - Native iOS/Android mobile product roadmap and remote MacBook build plan.
 - Client progress tracking: admins and trainers can record client measurements (weight, body fat, waist, chest, arms) with notes and date.
 - Admin client measurements page at `/dashboard/admin/clients/[id]/measurements` with history table and weight trend chart.
