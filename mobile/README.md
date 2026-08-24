@@ -101,10 +101,24 @@ source "$HOME/Developer/scripts/mobile-ci-env.sh"
 cd "$HOME/Developer/NativeBuilds/fitness-app/mobile"
 FITNESS_IOS_DEVELOPMENT_TEAM="95J9TJ8L95" \
 	FITNESS_IOS_CODE_SIGN_STYLE="Manual" \
-	FITNESS_IOS_PROVISIONING_PROFILE_SPECIFIER="Fitness PT Tracker App Store" \
+	FITNESS_IOS_PROVISIONING_PROFILE_SPECIFIER="Fitness PT Tracker App Store MacBook" \
 	FITNESS_IOS_CODE_SIGN_IDENTITY="iPhone Distribution: Thelightville Consulting (95J9TJ8L95)" \
+	FITNESS_IOS_CODE_SIGN_KEYCHAIN="$HOME/Developer/ci-secrets/keychains/ci-build.keychain-db" \
+	FITNESS_IOS_CODE_SIGN_KEYCHAIN_PASSWORD_FILE="$HOME/Developer/ci-secrets/keychains/.ci-build-keychain-password" \
 	npm run release:ios
 ```
+
+After the archive succeeds, export the App Store Connect IPA:
+
+```bash
+FITNESS_IOS_DEVELOPMENT_TEAM="95J9TJ8L95" \
+	FITNESS_IOS_PROVISIONING_PROFILE_SPECIFIER="Fitness PT Tracker App Store MacBook" \
+	FITNESS_IOS_CODE_SIGN_KEYCHAIN="$HOME/Developer/ci-secrets/keychains/ci-build.keychain-db" \
+	FITNESS_IOS_CODE_SIGN_KEYCHAIN_PASSWORD_FILE="$HOME/Developer/ci-secrets/keychains/.ci-build-keychain-password" \
+	npm run release:ios:ipa
+```
+
+The export writes the IPA to `$HOME/Developer/Builds/fitness/ios-export` and prints file sizes plus SHA-256 checksums.
 
 Use Xcode Organizer or a non-committed export options plist to upload the archive to TestFlight.
 
