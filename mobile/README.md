@@ -65,6 +65,14 @@ cd "$HOME/Developer/NativeBuilds/fitness-app/mobile/android"
 ./gradlew bundleRelease
 ```
 
+The preferred repeatable command is:
+
+```bash
+source "$HOME/Developer/scripts/mobile-ci-env.sh"
+cd "$HOME/Developer/NativeBuilds/fitness-app/mobile"
+FITNESS_INIT_ANDROID_SIGNING=1 npm run release:android
+```
+
 Do not commit the keystore file, passwords, or generated release artifacts.
 
 ## iOS Release Signing
@@ -76,6 +84,14 @@ source "$HOME/Developer/scripts/mobile-ci-env.sh"
 cd "$HOME/Developer/NativeBuilds/fitness-app/mobile/ios"
 pod install
 xcodebuild archive -workspace FitnessPTTracker.xcworkspace -scheme FitnessPTTracker -configuration Release -destination "generic/platform=iOS" -archivePath "$HOME/Developer/Builds/FitnessPTTracker.xcarchive"
+```
+
+The preferred repeatable command is:
+
+```bash
+source "$HOME/Developer/scripts/mobile-ci-env.sh"
+cd "$HOME/Developer/NativeBuilds/fitness-app/mobile"
+FITNESS_IOS_DEVELOPMENT_TEAM="95J9TJ8L95" FITNESS_IOS_CODE_SIGN_STYLE="Automatic" FITNESS_IOS_ALLOW_PROVISIONING_UPDATES=1 npm run release:ios
 ```
 
 Use Xcode Organizer or a non-committed export options plist to upload the archive to TestFlight.
