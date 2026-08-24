@@ -74,6 +74,17 @@ interface Appointment {
   workoutLog?: WorkoutLog | null;
 }
 
+interface ClientSummary {
+  id: string;
+  user: { name: string | null; email: string };
+}
+
+interface GymSummary {
+  id: string;
+  name: string;
+  address: string | null;
+}
+
 interface Measurement {
   id: string;
   weightKg: number | null;
@@ -283,6 +294,7 @@ function LoginScreen({ onSessionChange }: { onSessionChange: (session: MobileSes
 function DashboardScreen({ session, onSessionChange }: { session: MobileSession; onSessionChange: (session: MobileSession | null) => Promise<void> }) {
   const [activeView, setActiveView] = useState<ActiveView>('appointments');
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [bookingForm, setBookingForm] = useState({ clientId: '', gymLocationId: '', date: '', time: '', durationMinutes: '60' });
   const queryClientInstance = useQueryClient();
   const request = <T,>(path: string, options: RequestInit = {}) => authenticatedRequest<T>(path, options, session, onSessionChange);
   const dashboardQuery = useQuery({
@@ -299,6 +311,18 @@ function DashboardScreen({ session, onSessionChange }: { session: MobileSession;
     queryKey: ['progress', session.user.id],
     queryFn: () => request<ProgressData>('/api/mobile/progress'),
     enabled: session.user.role === 'CLIENT',
+  });
+
+  const clientsQuery = useQuery({
+    queryKey: ['clients', session.user.id],
+    queryFn: () => request<ClientSummary[]>('/api/mobile/clients'),
+    enabled: session.user.role === 'TRAINER',
+  });
+
+  const gymsQuery = useQuery({
+    queryKey: ['gyms', session.user.id],
+    queryFn: () => request<GymSummary[]>('/api/mobile/gyms'),
+    enabled: session.user.role === 'TRAINER',
   });
 
   const statusMutation = useMutation({
@@ -332,6 +356,40 @@ function DashboardScreen({ session, onSessionChange }: { session: MobileSession;
       Alert.alert('Workout logged', 'The appointment has been marked complete.');
     },
     onError: (error) => Alert.alert('Unable to log workout', error.message),
+  });
+
+  const bookingMutation = useMutation({
+    mutationFn: () => {
+      const duration = Number(bookingForm.durationMinutes);
+      const startsAt = new Date(`${bookingForm.date}T${bookingForm.time}:00`);
+      if (!bookingForm.clientId || !bookingForm.gymLocationId || !bookingForm.date || !bookingForm.time) {
+        throw new Error('Choose a client, gym, date, and time.');
+      }
+      if (!Number.isFinite(duration) || duration < 15) {
+        throw new Error('Use a duration of at least 15 minutes.');
+      }
+      if (Number.isNaN(startsAt.getTime())) {
+        throw new Error('Enter a valid date and time.');
+      }
+
+      const endsAt = new Date(startsAt.getTime() + duration * 60000);
+      return request<Appointment>('/api/mobile/appointments', {
+        method: 'POST',
+        body: JSON.stringify({
+          clientId: bookingForm.clientId,
+          gymLocationId: bookingForm.gymLocationId,
+          startsAt: startsAt.toISOString(),
+          endsAt: endsAt.toISOString(),
+        }),
+      });
+    },
+    onSuccess: async () => {
+      setBookingForm({ clientId: '', gymLocationId: '', date: '', time: '', durationMinutes: '60' });
+      await queryClientInstance.invalidateQueries({ queryKey: ['dashboard', session.user.id] });
+      await queryClientInstance.invalidateQueries({ queryKey: ['appointments', session.user.id] });
+      Alert.alert('Session booked', 'The client session has been added to your schedule.');
+    },
+    onError: (error) => Alert.alert('Unable to book session', error.message),
   });
 
   const logoutMutation = useMutation({
@@ -392,6 +450,17 @@ function DashboardScreen({ session, onSessionChange }: { session: MobileSession;
           <ProgressScreen data={progressQuery.data} loading={progressQuery.isLoading} onRefresh={() => progressQuery.refetch()} />
         ) : (
           <>
+            {session.user.role === 'TRAINER' && (
+              <TrainerBookingPanel
+                clients={clientsQuery.data ?? []}
+                form={bookingForm}
+                gyms={gymsQuery.data ?? []}
+                loading={clientsQuery.isLoading || gymsQuery.isLoading}
+                saving={bookingMutation.isPending}
+                onChange={setBookingForm}
+                onSubmit={() => bookingMutation.mutate()}
+              />
+            )}
 
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Appointments</Text>
@@ -417,6 +486,57 @@ function DashboardScreen({ session, onSessionChange }: { session: MobileSession;
         )}
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function TrainerBookingPanel({ clients, form, gyms, loading, saving, onChange, onSubmit }: {
+  clients: ClientSummary[];
+  form: { clientId: string; gymLocationId: string; date: string; time: string; durationMinutes: string };
+  gyms: GymSummary[];
+  loading: boolean;
+  saving: boolean;
+  onChange: (form: { clientId: string; gymLocationId: string; date: string; time: string; durationMinutes: string }) => void;
+  onSubmit: () => void;
+}) {
+  return (
+    <View style={styles.infoBlock}>
+      <Text style={styles.infoLabel}>Book client session</Text>
+      <Text style={styles.bookingHint}>{loading ? 'Loading clients and gyms...' : 'Choose who, where, and when.'}</Text>
+
+      <Text style={styles.label}>Client</Text>
+      <View style={styles.choiceList}>
+        {clients.map((client) => (
+          <Pressable
+            key={client.id}
+            onPress={() => onChange({ ...form, clientId: client.id })}
+            style={[styles.choiceButton, form.clientId === client.id && styles.choiceButtonActive]}
+          >
+            <Text style={[styles.choiceText, form.clientId === client.id && styles.choiceTextActive]}>{client.user.name || client.user.email}</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <Text style={styles.label}>Gym</Text>
+      <View style={styles.choiceList}>
+        {gyms.map((gym) => (
+          <Pressable
+            key={gym.id}
+            onPress={() => onChange({ ...form, gymLocationId: gym.id })}
+            style={[styles.choiceButton, form.gymLocationId === gym.id && styles.choiceButtonActive]}
+          >
+            <Text style={[styles.choiceText, form.gymLocationId === gym.id && styles.choiceTextActive]}>{gym.name}</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <Text style={styles.label}>Date</Text>
+      <TextInput onChangeText={(date) => onChange({ ...form, date })} placeholder="YYYY-MM-DD" placeholderTextColor="#94a3b8" style={styles.input} value={form.date} />
+      <Text style={styles.label}>Time</Text>
+      <TextInput onChangeText={(time) => onChange({ ...form, time })} placeholder="HH:mm" placeholderTextColor="#94a3b8" style={styles.input} value={form.time} />
+      <Text style={styles.label}>Duration minutes</Text>
+      <TextInput keyboardType="number-pad" onChangeText={(durationMinutes) => onChange({ ...form, durationMinutes })} style={styles.input} value={form.durationMinutes} />
+      <PrimaryButton disabled={saving || loading} label={saving ? 'Booking...' : 'Book session'} onPress={onSubmit} />
+    </View>
   );
 }
 
@@ -1056,6 +1176,39 @@ const styles = StyleSheet.create({
     color: '#0f172a',
     fontSize: 16,
     fontWeight: '700',
+  },
+  bookingHint: {
+    marginTop: 6,
+    marginBottom: 12,
+    color: '#475569',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  choiceList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+  choiceButton: {
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  choiceButtonActive: {
+    borderColor: '#0f766e',
+    backgroundColor: '#ccfbf1',
+  },
+  choiceText: {
+    color: '#334155',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  choiceTextActive: {
+    color: '#115e59',
   },
   workoutTypeGrid: {
     flexDirection: 'row',

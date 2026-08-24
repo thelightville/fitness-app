@@ -27,6 +27,11 @@ interface Trainer {
   availability: { dayOfWeek: number; startTime: string; endTime: string }[];
 }
 
+interface Client {
+  id: string;
+  user: { name: string | null; email: string };
+}
+
 interface GymLocation {
   id: string;
   name: string;
@@ -37,9 +42,11 @@ export default function AppointmentsPage() {
   const { data: session } = useSession();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [trainers, setTrainers] = useState<Trainer[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [gyms, setGyms] = useState<GymLocation[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
+    clientId: '',
     trainerId: '',
     gymLocationId: '',
     date: '',
@@ -50,6 +57,8 @@ export default function AppointmentsPage() {
   const [success, setSuccess] = useState('');
 
   const isClient = (session?.user as any)?.role === UserRole.CLIENT;
+  const isTrainer = (session?.user as any)?.role === UserRole.TRAINER;
+  const canBookSessions = isClient || isTrainer;
 
   useEffect(() => {
     fetchAppointments();
@@ -57,12 +66,20 @@ export default function AppointmentsPage() {
       fetch('/api/trainers')
         .then((r) => r.json())
         .then(setTrainers);
+    }
+    if (isTrainer) {
+      fetch('/api/clients')
+        .then((r) => r.json())
+        .then(setClients)
+        .catch(() => setClients([]));
+    }
+    if (canBookSessions) {
       fetch('/api/gyms')
         .then((r) => r.json())
         .then(setGyms)
         .catch(() => setGyms([]));
     }
-  }, [isClient]);
+  }, [canBookSessions, isClient, isTrainer]);
 
   async function fetchAppointments() {
     setLoading(true);
@@ -79,16 +96,18 @@ export default function AppointmentsPage() {
 
     const startsAt = new Date(`${form.date}T${form.time}`);
     const endsAt = new Date(startsAt.getTime() + form.duration * 60000);
+    const payload = {
+      ...(isClient ? { trainerId: form.trainerId } : {}),
+      ...(isTrainer ? { clientId: form.clientId } : {}),
+      gymLocationId: form.gymLocationId,
+      startsAt: startsAt.toISOString(),
+      endsAt: endsAt.toISOString(),
+    };
 
     const res = await fetch('/api/appointments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        trainerId: form.trainerId,
-        gymLocationId: form.gymLocationId,
-        startsAt: startsAt.toISOString(),
-        endsAt: endsAt.toISOString(),
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
@@ -97,8 +116,8 @@ export default function AppointmentsPage() {
       return;
     }
 
-    setSuccess('Appointment booked successfully');
-    setForm({ trainerId: '', gymLocationId: '', date: '', time: '', duration: 60 });
+    setSuccess('Session booked successfully');
+    setForm({ clientId: '', trainerId: '', gymLocationId: '', date: '', time: '', duration: 60 });
     fetchAppointments();
   }
 
@@ -129,11 +148,11 @@ export default function AppointmentsPage() {
         subtitle="Schedule, manage, and track your training sessions."
       />
 
-      {isClient && (
+      {canBookSessions && (
         <div className="card">
           <h2 className="section-title flex items-center gap-2">
             <Plus className="h-5 w-5 text-primary-600" aria-hidden="true" />
-            Book a Session
+            {isTrainer ? 'Book Client Session' : 'Book a Session'}
           </h2>
           {error && (
             <div className="mt-4 flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-700">
@@ -148,22 +167,42 @@ export default function AppointmentsPage() {
             </div>
           )}
           <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <div>
-              <label className="label">Trainer</label>
-              <select
-                required
-                value={form.trainerId}
-                onChange={(e) => setForm({ ...form, trainerId: e.target.value })}
-                className="input"
-              >
-                <option value="">Select trainer</option>
-                {trainers.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.user.name || t.user.email}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {isClient && (
+              <div>
+                <label className="label">Trainer</label>
+                <select
+                  required
+                  value={form.trainerId}
+                  onChange={(e) => setForm({ ...form, trainerId: e.target.value })}
+                  className="input"
+                >
+                  <option value="">Select trainer</option>
+                  {trainers.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.user.name || t.user.email}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {isTrainer && (
+              <div>
+                <label className="label">Client</label>
+                <select
+                  required
+                  value={form.clientId}
+                  onChange={(e) => setForm({ ...form, clientId: e.target.value })}
+                  className="input"
+                >
+                  <option value="">Select client</option>
+                  {clients.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.user.name || c.user.email}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div>
               <label className="label">Gym</label>
               <select
@@ -224,7 +263,7 @@ export default function AppointmentsPage() {
             <EmptyState
               icon={CalendarDays}
               title="No appointments found"
-              description="Book your first session to see it here."
+              description={isTrainer ? 'Book a client session to see it here.' : 'Book your first session to see it here.'}
             />
           </div>
         ) : (

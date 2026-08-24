@@ -6,7 +6,8 @@ import { z } from 'zod';
 import { logAudit } from '@/lib/audit';
 
 const createSchema = z.object({
-  trainerId: z.string().cuid(),
+  clientId: z.string().cuid().optional(),
+  trainerId: z.string().cuid().optional(),
   gymLocationId: z.string().min(1),
   startsAt: z.string().datetime(),
   endsAt: z.string().datetime(),
@@ -54,8 +55,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user || session.user.role !== UserRole.CLIENT) {
-    return NextResponse.json({ error: 'Only clients can book appointments' }, { status: 403 });
+  if (!session?.user || (session.user.role !== UserRole.CLIENT && session.user.role !== UserRole.TRAINER)) {
+    return NextResponse.json({ error: 'Only clients and trainers can book appointments' }, { status: 403 });
   }
 
   const body = await req.json();
@@ -64,34 +65,77 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid input', issues: parsed.error.issues }, { status: 400 });
   }
 
-  const { trainerId, gymLocationId, startsAt, endsAt } = parsed.data;
+  const { clientId: requestedClientId, trainerId: requestedTrainerId, gymLocationId, startsAt, endsAt } = parsed.data;
+  const startsAtDate = new Date(startsAt);
+  const endsAtDate = new Date(endsAt);
 
-  const client = await prisma.client.findUnique({ where: { userId: session.user.id } });
-  if (!client) return NextResponse.json({ error: 'Client profile not found' }, { status: 404 });
+  if (endsAtDate <= startsAtDate) {
+    return NextResponse.json({ error: 'End time must be after start time' }, { status: 400 });
+  }
 
-  // Check for overlapping appointments with the same trainer
+  let clientId: string;
+  let trainerId: string;
+
+  if (session.user.role === UserRole.CLIENT) {
+    if (!requestedTrainerId) {
+      return NextResponse.json({ error: 'Trainer is required' }, { status: 400 });
+    }
+
+    const client = await prisma.client.findUnique({ where: { userId: session.user.id } });
+    if (!client) return NextResponse.json({ error: 'Client profile not found' }, { status: 404 });
+    clientId = client.id;
+    trainerId = requestedTrainerId;
+  } else {
+    if (!requestedClientId) {
+      return NextResponse.json({ error: 'Client is required' }, { status: 400 });
+    }
+
+    const trainer = await prisma.trainer.findUnique({ where: { userId: session.user.id } });
+    if (!trainer) return NextResponse.json({ error: 'Trainer profile not found' }, { status: 404 });
+    clientId = requestedClientId;
+    trainerId = trainer.id;
+  }
+
+  const [client, trainer, gym] = await Promise.all([
+    prisma.client.findFirst({ where: { id: clientId, active: true } }),
+    prisma.trainer.findFirst({ where: { id: trainerId, active: true } }),
+    prisma.gymLocation.findFirst({ where: { id: gymLocationId, active: true } }),
+  ]);
+
+  if (!client) return NextResponse.json({ error: 'Client not found or inactive' }, { status: 404 });
+  if (!trainer) return NextResponse.json({ error: 'Trainer not found or inactive' }, { status: 404 });
+  if (!gym) return NextResponse.json({ error: 'Gym not found or inactive' }, { status: 404 });
+
   const overlap = await prisma.appointment.findFirst({
     where: {
-      trainerId,
       status: { notIn: [AppointmentStatus.CANCELLED, AppointmentStatus.NO_SHOW] },
       OR: [
-        { startsAt: { lt: new Date(endsAt) }, endsAt: { gt: new Date(startsAt) } },
+        {
+          trainerId,
+          startsAt: { lt: endsAtDate },
+          endsAt: { gt: startsAtDate },
+        },
+        {
+          clientId,
+          startsAt: { lt: endsAtDate },
+          endsAt: { gt: startsAtDate },
+        },
       ],
     },
   });
 
   if (overlap) {
-    return NextResponse.json({ error: 'Selected time slot is not available' }, { status: 409 });
+    return NextResponse.json({ error: 'Selected time slot is not available for this trainer or client' }, { status: 409 });
   }
 
   const appointment = await prisma.appointment.create({
     data: {
-      clientId: client.id,
+      clientId,
       trainerId,
       gymLocationId,
-      startsAt: new Date(startsAt),
-      endsAt: new Date(endsAt),
-      status: AppointmentStatus.PENDING,
+      startsAt: startsAtDate,
+      endsAt: endsAtDate,
+      status: session.user.role === UserRole.TRAINER ? AppointmentStatus.CONFIRMED : AppointmentStatus.PENDING,
     },
     include: {
       client: { include: { user: { select: { name: true, email: true } } } },
@@ -106,7 +150,7 @@ export async function POST(req: NextRequest) {
     entityId: appointment.id,
     action: 'created',
     appointmentId: appointment.id,
-    metadata: { startsAt, endsAt, trainerId, gymLocationId },
+    metadata: { startsAt, endsAt, trainerId, clientId, gymLocationId, createdByRole: session.user.role },
   });
 
   return NextResponse.json(appointment, { status: 201 });

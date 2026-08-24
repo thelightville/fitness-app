@@ -10,6 +10,7 @@ Fitness PT Tracker helps personal trainers and clients schedule, confirm, attend
 
 - **User roles:** Client, Personal Trainer, Admin
 - **Appointment scheduling:** book, confirm, reschedule, cancel, complete
+- **Trainer booking:** trainers can book confirmed client sessions from the web dashboard and native app
 - **Calendar integration:** download `.ics` invites
 - **Reminders:** automated email reminders before sessions
 - **Location check-in:** verify the client is at the gym via browser geolocation

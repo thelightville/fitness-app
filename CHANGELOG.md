@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Trainer-created client session booking on the web dashboard and native mobile app, with role-scoped client selection and mobile client/gym lookup APIs.
 - App Store Connect metadata source for the native mobile app listing.
 - Public web homepage now uses the app icon, fitness visual assets, and free stock gym/training photos so the browser experience matches the mobile/store release polish.
 - Web homepage and native mobile screens now use stock photography in primary hero, dashboard, appointment, and progress surfaces instead of illustrated preview panels.
