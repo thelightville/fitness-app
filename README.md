@@ -75,7 +75,7 @@ All logged-in users can change their own password from `/dashboard/settings`.
 - [Mobile Roadmap](docs/mobile-roadmap.md)
 - [Mobile App](mobile/README.md)
 - [Google Play Store Assets](mobile/store-assets/play/README.md)
-- Public web graphics: original free fitness assets live in `public/images/` and are used by the homepage hero and training-flow sections.
+- Public web graphics: free stock fitness photos and app preview assets live in `public/images/` and are used by the homepage hero and training-flow sections.
 - Public review pages: `/privacy`, `/support`, and `/account-deletion`
 - [Contributing](CONTRIBUTING.md)
 

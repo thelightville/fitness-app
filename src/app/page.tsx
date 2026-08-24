@@ -46,24 +46,24 @@ const features = [
   },
 ];
 
-const freeGraphics = [
+const stockPhotos = [
   {
-    src: '/images/free-gym-coaching.svg',
-    alt: 'Trainer coaching a client during a gym session',
+    src: '/images/stock-gym-coaching.jpg',
+    alt: 'Personal trainer coaching a client during a gym session',
     title: 'Coach-led sessions',
-    description: 'A visual anchor for the trainer and client workflow.',
+    description: 'Free stock photography that reflects the trainer and client workflow.',
   },
   {
-    src: '/images/free-fitness-checkin.svg',
-    alt: 'Gym check-in confirmation graphic',
+    src: '/images/stock-gym-equipment.jpg',
+    alt: 'Gym equipment prepared for a training session',
     title: 'Verified attendance',
-    description: 'Check-ins, appointments, and confirmation in one flow.',
+    description: 'Gym context for check-ins, appointments, and confirmed visits.',
   },
   {
-    src: '/images/free-strength-tracking.svg',
-    alt: 'Strength and progress tracking dashboard graphic',
+    src: '/images/stock-strength-training.jpg',
+    alt: 'Athlete strength training in a gym',
     title: 'Measured progress',
-    description: 'Progress records presented as a clean training dashboard.',
+    description: 'Strength training imagery paired with progress tracking records.',
   },
 ];
 
@@ -169,19 +169,19 @@ export default function HomePage() {
 
         <section className="mt-20 rounded-[2rem] bg-white/80 p-4 shadow-card ring-1 ring-slate-900/5 backdrop-blur dark:bg-slate-900/70 dark:ring-white/10 sm:p-6 lg:p-8">
           <div className="grid gap-4 sm:grid-cols-3">
-            {freeGraphics.map((graphic) => (
-              <article key={graphic.title} className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+            {stockPhotos.map((photo) => (
+              <article key={photo.title} className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
                 <Image
-                  src={graphic.src}
-                  alt={graphic.alt}
+                  src={photo.src}
+                  alt={photo.alt}
                   width={960}
                   height={640}
                   className="aspect-[3/2] w-full object-cover"
                   unoptimized
                 />
                 <div className="p-4">
-                  <h2 className="text-base font-extrabold text-slate-950 dark:text-white">{graphic.title}</h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{graphic.description}</p>
+                  <h2 className="text-base font-extrabold text-slate-950 dark:text-white">{photo.title}</h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{photo.description}</p>
                 </div>
               </article>
             ))}
