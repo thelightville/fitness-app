@@ -9,8 +9,8 @@ ANDROID_DIR="${ROOT_DIR}/android"
 BUILD_DIR="${FITNESS_BUILD_DIR:-${HOME}/Developer/Builds/fitness}"
 SIGNING_ENV="${FITNESS_ANDROID_SIGNING_ENV:-${HOME}/Developer/secrets/fitness-android-signing.env}"
 KEYSTORE="${FITNESS_UPLOAD_STORE_FILE:-${HOME}/Developer/secrets/fitness-upload.keystore}"
-VERSION_NAME="${FITNESS_ANDROID_VERSION_NAME:-1.0.0-beta.1}"
-ARTIFACT="${BUILD_DIR}/fitness-${VERSION_NAME}.aab"
+REQUESTED_VERSION_CODE="${FITNESS_ANDROID_VERSION_CODE:-}"
+REQUESTED_VERSION_NAME="${FITNESS_ANDROID_VERSION_NAME:-}"
 
 # Creates a local signing environment when explicitly requested by the build host.
 create_signing_env() {
@@ -56,13 +56,27 @@ fi
 # shellcheck source=/dev/null
 . "${SIGNING_ENV}"
 
+if [[ -n "${REQUESTED_VERSION_CODE}" ]]; then
+  export FITNESS_ANDROID_VERSION_CODE="${REQUESTED_VERSION_CODE}"
+fi
+
+if [[ -n "${REQUESTED_VERSION_NAME}" ]]; then
+  export FITNESS_ANDROID_VERSION_NAME="${REQUESTED_VERSION_NAME}"
+fi
+
+VERSION_NAME="${FITNESS_ANDROID_VERSION_NAME:-1.0.0-beta.1}"
+ARTIFACT="${BUILD_DIR}/fitness-${VERSION_NAME}.aab"
+
 if [[ ! -f "${FITNESS_UPLOAD_STORE_FILE}" ]]; then
   create_upload_keystore
 fi
 
 mkdir -p "${BUILD_DIR}"
 cd "${ANDROID_DIR}"
-./gradlew bundleRelease
+./gradlew \
+  -PFITNESS_ANDROID_VERSION_CODE="${FITNESS_ANDROID_VERSION_CODE:-1}" \
+  -PFITNESS_ANDROID_VERSION_NAME="${VERSION_NAME}" \
+  bundleRelease
 cp app/build/outputs/bundle/release/app-release.aab "${ARTIFACT}"
 ls -lh "${ARTIFACT}"
 shasum -a 256 "${ARTIFACT}"
