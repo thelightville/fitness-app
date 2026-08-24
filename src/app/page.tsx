@@ -51,19 +51,19 @@ const stockPhotos = [
     src: '/images/stock-gym-coaching.jpg',
     alt: 'Personal trainer coaching a client during a gym session',
     title: 'Coach-led sessions',
-    description: 'Free stock photography that reflects the trainer and client workflow.',
+    description: 'Real coaching photography for trainer-led session planning.',
   },
   {
     src: '/images/stock-gym-equipment.jpg',
     alt: 'Gym equipment prepared for a training session',
     title: 'Verified attendance',
-    description: 'Gym context for check-ins, appointments, and confirmed visits.',
+    description: 'Actual gym context for check-ins, appointments, and confirmed visits.',
   },
   {
     src: '/images/stock-strength-training.jpg',
     alt: 'Athlete strength training in a gym',
     title: 'Measured progress',
-    description: 'Strength training imagery paired with progress tracking records.',
+    description: 'Training photography paired with workout and progress records.',
   },
 ];
 
@@ -132,32 +132,36 @@ export default function HomePage() {
           </div>
 
           <div className="relative min-h-[420px] sm:min-h-[560px] lg:min-h-[640px]">
-            <div className="absolute inset-x-8 top-8 h-72 rounded-full bg-primary-300/30 blur-3xl dark:bg-primary-500/20" />
-            <div className="relative mx-auto max-w-[560px] rounded-[2rem] bg-slate-950 p-3 shadow-2xl ring-1 ring-slate-900/10 dark:bg-slate-900 dark:ring-white/10 lg:ml-auto">
+            <div className="absolute inset-x-8 top-8 h-72 rounded-full bg-emerald-300/30 blur-3xl dark:bg-primary-500/20" />
+            <div className="relative mx-auto max-w-[590px] overflow-hidden rounded-[2rem] bg-slate-950 p-3 shadow-2xl ring-1 ring-slate-900/10 dark:bg-slate-900 dark:ring-white/10 lg:ml-auto">
               <Image
-                src="/images/studio-session.png"
-                alt="Trainer guiding a gym session"
+                src="/images/stock-gym-equipment.jpg"
+                alt="Gym floor with dumbbells ready for a training session"
                 width={1200}
                 height={900}
-                className="aspect-[4/3] rounded-[1.5rem] object-cover"
+                className="aspect-[4/3] w-full rounded-[1.5rem] object-cover"
                 priority
                 unoptimized
               />
+              <div className="absolute inset-x-3 bottom-3 rounded-b-[1.5rem] bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent p-6 text-white">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-primary-200">Live gym floor</p>
+                <p className="mt-2 text-2xl font-black">Appointments, check-ins, and progress in the same real-world workflow.</p>
+              </div>
             </div>
-            <div className="absolute bottom-4 left-0 w-[52%] rounded-3xl bg-white p-2 shadow-2xl ring-1 ring-slate-900/10 dark:bg-slate-900 dark:ring-white/10 sm:-bottom-2 sm:left-8 sm:w-[58%] sm:p-3">
+            <div className="absolute bottom-4 left-0 w-[52%] overflow-hidden rounded-3xl bg-white p-2 shadow-2xl ring-1 ring-slate-900/10 dark:bg-slate-900 dark:ring-white/10 sm:-bottom-2 sm:left-8 sm:w-[58%] sm:p-3">
               <Image
-                src="/images/trainer-dashboard.png"
-                alt="Fitness PT dashboard preview"
+                src="/images/stock-gym-coaching.jpg"
+                alt="Athlete completing coached floor work in a bright studio"
                 width={900}
                 height={720}
-                className="aspect-[5/4] rounded-2xl object-cover"
+                className="aspect-[5/4] w-full rounded-2xl object-cover"
                 unoptimized
               />
             </div>
-            <div className="absolute bottom-16 right-0 w-[38%] rounded-3xl bg-white p-2 shadow-xl ring-1 ring-slate-900/10 dark:bg-slate-900 dark:ring-white/10 sm:bottom-24 sm:w-[42%] sm:p-3">
+            <div className="absolute bottom-16 right-0 w-[38%] overflow-hidden rounded-3xl bg-white p-2 shadow-xl ring-1 ring-slate-900/10 dark:bg-slate-900 dark:ring-white/10 sm:bottom-24 sm:w-[42%] sm:p-3">
               <Image
-                src="/images/progress-check.png"
-                alt="Fitness progress check preview"
+                src="/images/stock-strength-training.jpg"
+                alt="Athlete preparing a barbell lift on a gym floor"
                 width={700}
                 height={700}
                 className="aspect-square rounded-2xl object-cover"

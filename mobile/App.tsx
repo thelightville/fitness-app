@@ -23,10 +23,10 @@ const SESSION_SERVICE = 'fitness-mobile-session';
 const queryClient = new QueryClient();
 
 const VISUALS = {
-  login: require('./assets/studio-session.png'),
-  coach: require('./assets/coach-session.png'),
-  trainer: require('./assets/trainer-dashboard.png'),
-  progress: require('./assets/progress-check.png'),
+  login: require('./assets/stock-gym-equipment.jpg'),
+  coach: require('./assets/stock-gym-coaching.jpg'),
+  trainer: require('./assets/stock-gym-equipment.jpg'),
+  progress: require('./assets/stock-strength-training.jpg'),
 };
 
 type UserRole = 'CLIENT' | 'TRAINER' | 'ADMIN';

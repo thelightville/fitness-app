@@ -2,6 +2,13 @@
 
 This folder contains Play Console listing assets for Fitness PT Tracker.
 
+The screenshots and feature graphic are generated from the stock fitness photos
+used by the web and native app. Regenerate them with:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File mobile/scripts/generate-stock-store-assets.ps1
+```
+
 ## Files
 
 - `icon-512.png` - 512x512 Play Store app icon.
