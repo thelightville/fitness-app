@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Public `/privacy` and `/support` pages for app-store review, tester support, and user data transparency.
+- Public `/privacy`, `/support`, and `/account-deletion` pages for app-store review, tester support, and user data transparency.
 - Google Play listing assets for the native mobile app: 512px app icon, feature graphic, and four phone screenshots.
 - Native React Native CLI mobile app under `mobile/` with login, secure session storage, dashboard, appointment actions, and GPS check-in.
 - Mobile API surface under `/api/mobile/*` with hashed revocable mobile sessions, refresh rotation, rate-limited auth, role-scoped appointment/dashboard access, progress data, and workout logging.

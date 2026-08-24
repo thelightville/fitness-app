@@ -74,6 +74,10 @@ export default function SupportPage() {
             <Link href="/privacy" className="font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300">
               fitness.myapps.com.ng/privacy
             </Link>
+            {' '}| Account deletion:{' '}
+            <Link href="/account-deletion" className="font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300">
+              fitness.myapps.com.ng/account-deletion
+            </Link>
           </p>
         </section>
       </div>

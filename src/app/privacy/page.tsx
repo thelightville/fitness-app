@@ -98,8 +98,8 @@ export default function PrivacyPage() {
               <h2 className="section-title">Contact</h2>
               <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
                 For privacy, account, or deletion requests, use the support page at{' '}
-                <Link href="/support" className="font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300">
-                  fitness.myapps.com.ng/support
+                <Link href="/account-deletion" className="font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300">
+                  fitness.myapps.com.ng/account-deletion
                 </Link>
                 .
               </p>

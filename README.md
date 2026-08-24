@@ -75,7 +75,7 @@ All logged-in users can change their own password from `/dashboard/settings`.
 - [Mobile Roadmap](docs/mobile-roadmap.md)
 - [Mobile App](mobile/README.md)
 - [Google Play Store Assets](mobile/store-assets/play/README.md)
-- Public review pages: `/privacy` and `/support`
+- Public review pages: `/privacy`, `/support`, and `/account-deletion`
 - [Contributing](CONTRIBUTING.md)
 
 ### Dark mode
