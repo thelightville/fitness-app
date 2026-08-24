@@ -4,7 +4,7 @@ set -euo pipefail
 # Creates an iOS release archive for Fitness PT Tracker on the MacBook build host.
 # Apple signing identities, team IDs, and export options stay outside git.
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
 IOS_DIR="${ROOT_DIR}/ios"
 BUILD_DIR="${FITNESS_BUILD_DIR:-${HOME}/Developer/Builds/fitness}"
 ARCHIVE_PATH="${FITNESS_IOS_ARCHIVE_PATH:-${BUILD_DIR}/FitnessPTTracker.xcarchive}"
@@ -31,6 +31,9 @@ if [[ -n "${FITNESS_IOS_CODE_SIGN_STYLE:-}" ]]; then
 fi
 if [[ -n "${FITNESS_IOS_PROVISIONING_PROFILE_SPECIFIER:-}" ]]; then
   set -- "$@" "PROVISIONING_PROFILE_SPECIFIER=${FITNESS_IOS_PROVISIONING_PROFILE_SPECIFIER}"
+fi
+if [[ -n "${FITNESS_IOS_CODE_SIGN_IDENTITY:-}" ]]; then
+  set -- "$@" "CODE_SIGN_IDENTITY=${FITNESS_IOS_CODE_SIGN_IDENTITY}"
 fi
 if [[ "${FITNESS_IOS_ALLOW_PROVISIONING_UPDATES:-0}" == "1" ]]; then
   set -- "$@" -allowProvisioningUpdates

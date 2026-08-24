@@ -94,6 +94,18 @@ cd "$HOME/Developer/NativeBuilds/fitness-app/mobile"
 FITNESS_IOS_DEVELOPMENT_TEAM="95J9TJ8L95" FITNESS_IOS_CODE_SIGN_STYLE="Automatic" FITNESS_IOS_ALLOW_PROVISIONING_UPDATES=1 npm run release:ios
 ```
 
+If Xcode is not signed in but the MacBook already has the distribution certificate and provisioning profile installed, use manual signing instead:
+
+```bash
+source "$HOME/Developer/scripts/mobile-ci-env.sh"
+cd "$HOME/Developer/NativeBuilds/fitness-app/mobile"
+FITNESS_IOS_DEVELOPMENT_TEAM="95J9TJ8L95" \
+	FITNESS_IOS_CODE_SIGN_STYLE="Manual" \
+	FITNESS_IOS_PROVISIONING_PROFILE_SPECIFIER="Fitness PT Tracker App Store" \
+	FITNESS_IOS_CODE_SIGN_IDENTITY="iPhone Distribution: Thelightville Consulting (95J9TJ8L95)" \
+	npm run release:ios
+```
+
 Use Xcode Organizer or a non-committed export options plist to upload the archive to TestFlight.
 
 ## Backend Contract
