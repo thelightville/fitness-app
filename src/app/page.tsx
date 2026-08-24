@@ -70,18 +70,18 @@ const stockPhotos = [
 export default function HomePage() {
   return (
     <div className="min-h-screen overflow-hidden bg-[#f7fbf7] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <header className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-5 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-2 text-lg font-extrabold tracking-tight text-slate-950 dark:text-primary-300 sm:text-xl">
+      <header className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-5 sm:gap-3 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-1.5 text-sm font-extrabold tracking-tight text-slate-950 dark:text-primary-300 sm:gap-2 sm:text-xl">
           <Image
             src="/images/icon-512.png"
             alt="Fitness PT Tracker"
             width={40}
             height={40}
-            className="h-9 w-9 shrink-0 rounded-xl shadow-sm sm:h-10 sm:w-10"
+            className="h-8 w-8 shrink-0 rounded-xl shadow-sm sm:h-10 sm:w-10"
             priority
             unoptimized
           />
-          <span className="hidden whitespace-nowrap sm:inline">Fitness PT</span>
+          <span className="whitespace-nowrap">Fitness PT</span>
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <Link href="/login" className="btn-ghost px-2.5 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm">
