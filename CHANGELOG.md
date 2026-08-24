@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - App Store Connect metadata source for the native mobile app listing.
 - Public web homepage now uses the app icon, fitness visual assets, and free stock gym/training photos so the browser experience matches the mobile/store release polish.
+- Web homepage and native mobile screens now use stock photography in primary hero, dashboard, appointment, and progress surfaces instead of illustrated preview panels.
 - Public `/privacy`, `/support`, and `/account-deletion` pages for app-store review, tester support, and user data transparency.
 - Google Play listing assets for the native mobile app: 512px app icon, feature graphic, and four phone screenshots.
 - Native React Native CLI mobile app under `mobile/` with login, secure session storage, dashboard, appointment actions, and GPS check-in.
