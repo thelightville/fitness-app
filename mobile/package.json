@@ -8,6 +8,7 @@
     "lint": "eslint .",
     "release:android": "bash scripts/build-android-release.sh",
     "release:ios": "bash scripts/build-ios-archive.sh",
+    "release:ios:ipa": "bash scripts/export-ios-ipa.sh",
     "start": "react-native start",
     "typecheck": "tsc --noEmit",
     "test": "jest"
