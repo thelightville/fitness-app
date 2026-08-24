@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved dashboard dark-mode contrast so appointment details, navigation, cards, labels, and supporting text remain readable.
 - Updated CT117 Docker Compose runtime networking so the app uses the internal Postgres service and remains published on port `8054`.
 - Updated trainer dashboards and appointment actions so assigned appointments remain visible and pending appointments can be cancelled by either party.
+- Fixed Android release builds so explicit `FITNESS_ANDROID_VERSION_CODE` and `FITNESS_ANDROID_VERSION_NAME` overrides are preserved when loading signing defaults.
 
 ### Added
 
