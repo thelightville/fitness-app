@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  ImageBackground,
   Platform,
   Pressable,
   ScrollView,
@@ -20,6 +21,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const API_BASE_URL = 'https://fitness.myapps.com.ng';
 const SESSION_SERVICE = 'fitness-mobile-session';
 const queryClient = new QueryClient();
+
+const VISUALS = {
+  login: require('./assets/studio-session.png'),
+  coach: require('./assets/coach-session.png'),
+  trainer: require('./assets/trainer-dashboard.png'),
+  progress: require('./assets/progress-check.png'),
+};
 
 type UserRole = 'CLIENT' | 'TRAINER' | 'ADMIN';
 type AppointmentStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'RESCHEDULED' | 'CHECKED_IN' | 'COMPLETED' | 'NO_SHOW';
@@ -232,11 +240,14 @@ function LoginScreen({ onSessionChange }: { onSessionChange: (session: MobileSes
 
   return (
     <SafeAreaView style={styles.authScreen}>
-      <View style={styles.brandBlock}>
-        <Text style={styles.brandEyebrow}>Fitness PT Tracker</Text>
-        <Text style={styles.brandTitle}>Trainers and clients, in sync.</Text>
-        <Text style={styles.brandText}>Manage appointments, check-ins, workouts, and progress from your phone.</Text>
-      </View>
+      <ImageBackground source={VISUALS.login} style={styles.authHero} imageStyle={styles.authHeroImage}>
+        <View style={styles.mediaShade} />
+        <View style={styles.brandBlock}>
+          <Text style={styles.brandEyebrow}>Fitness PT Tracker</Text>
+          <Text style={styles.brandTitle}>Trainers and clients, in sync.</Text>
+          <Text style={styles.brandText}>Manage appointments, check-ins, workouts, and progress from your phone.</Text>
+        </View>
+      </ImageBackground>
 
       <View style={styles.formCard}>
         <Text style={styles.label}>Email</Text>
@@ -368,6 +379,8 @@ function DashboardScreen({ session, onSessionChange }: { session: MobileSession;
           </View>
         )}
 
+        <DashboardHero role={session.user.role} upcomingAppointments={dashboardQuery.data?.stats.upcomingAppointments ?? 0} />
+
         <View style={styles.statsGrid}>
           <MetricCard label="Total" value={dashboardQuery.data?.stats.totalAppointments ?? 0} />
           <MetricCard label="Upcoming" value={dashboardQuery.data?.stats.upcomingAppointments ?? 0} />
@@ -441,6 +454,27 @@ function SegmentButton({ active, label, onPress }: { active: boolean; label: str
   );
 }
 
+function DashboardHero({ role, upcomingAppointments }: { role: UserRole; upcomingAppointments: number }) {
+  const isTrainer = role === 'TRAINER';
+  const title = role === 'CLIENT' ? 'Your next session starts before you arrive.' : isTrainer ? 'Coaching days, clearer at a glance.' : 'A live picture of studio demand.';
+  const caption = role === 'CLIENT'
+    ? `${upcomingAppointments} upcoming plan${upcomingAppointments === 1 ? '' : 's'} to keep momentum visible.`
+    : isTrainer
+      ? `${upcomingAppointments} upcoming appointment${upcomingAppointments === 1 ? '' : 's'} ready for coaching.`
+      : `${upcomingAppointments} upcoming booking${upcomingAppointments === 1 ? '' : 's'} across the gym.`;
+
+  return (
+    <ImageBackground source={isTrainer ? VISUALS.trainer : VISUALS.coach} style={styles.dashboardHero} imageStyle={styles.dashboardHeroImage}>
+      <View style={styles.mediaShade} />
+      <View style={styles.mediaTextBlock}>
+        <Text style={styles.mediaEyebrow}>{role === 'CLIENT' ? 'Training picture' : 'Studio picture'}</Text>
+        <Text style={styles.mediaTitle}>{title}</Text>
+        <Text style={styles.mediaCaption}>{caption}</Text>
+      </View>
+    </ImageBackground>
+  );
+}
+
 function ProgressScreen({ data, loading, onRefresh }: { data?: ProgressData; loading: boolean; onRefresh: () => void }) {
   if (loading) {
     return <Text style={styles.emptyText}>Loading progress...</Text>;
@@ -455,6 +489,15 @@ function ProgressScreen({ data, loading, onRefresh }: { data?: ProgressData; loa
           <Text style={styles.linkText}>Refresh</Text>
         </Pressable>
       </View>
+
+      <ImageBackground source={VISUALS.progress} style={styles.progressHero} imageStyle={styles.dashboardHeroImage}>
+        <View style={styles.mediaShade} />
+        <View style={styles.mediaTextBlock}>
+          <Text style={styles.mediaEyebrow}>Body metrics</Text>
+          <Text style={styles.mediaTitle}>Progress should feel visible.</Text>
+          <Text style={styles.mediaCaption}>Measurements and workouts stay together so each session has context.</Text>
+        </View>
+      </ImageBackground>
 
       <View style={styles.infoBlock}>
         <Text style={styles.infoLabel}>Latest measurement</Text>
@@ -515,6 +558,11 @@ function AppointmentRow({ appointment, isClient, onPress }: { appointment: Appoi
   const counterpart = isClient ? appointment.trainer.user : appointment.client.user;
   return (
     <Pressable onPress={onPress} style={styles.appointmentCard}>
+      <ImageBackground source={isClient ? VISUALS.coach : VISUALS.trainer} style={styles.appointmentImage} imageStyle={styles.appointmentImageStyle}>
+        <View style={styles.appointmentImageOverlay}>
+          <Text style={styles.appointmentImageText}>{isClient ? 'Coach session' : 'Client session'}</Text>
+        </View>
+      </ImageBackground>
       <View style={styles.appointmentTopline}>
         <Text style={styles.appointmentTime}>{formatDateTime(appointment.startsAt)}</Text>
         <StatusPill status={appointment.status} />
@@ -565,6 +613,14 @@ function AppointmentDetailScreen({ appointment, isClient, onBack, onCancel, onCh
         <StatusPill status={appointment.status} />
       </View>
       <ScrollView contentContainerStyle={styles.content}>
+        <ImageBackground source={isClient ? VISUALS.coach : VISUALS.trainer} style={styles.detailHero} imageStyle={styles.dashboardHeroImage}>
+          <View style={styles.mediaShade} />
+          <View style={styles.mediaTextBlock}>
+            <Text style={styles.mediaEyebrow}>{isClient ? 'Trainer session' : 'Client session'}</Text>
+            <Text style={styles.mediaTitle}>{appointment.gymLocation.name}</Text>
+            <Text style={styles.mediaCaption}>{formatDateTime(appointment.startsAt)}</Text>
+          </View>
+        </ImageBackground>
         <Text style={styles.detailTitle}>{counterpart.name || counterpart.email}</Text>
         <Text style={styles.detailSubtitle}>{formatDateTime(appointment.startsAt)}</Text>
 
@@ -662,8 +718,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#0f2f2b',
     padding: 22,
   },
+  authHero: {
+    minHeight: 280,
+    justifyContent: 'flex-end',
+    marginBottom: 18,
+    overflow: 'hidden',
+    borderRadius: 8,
+  },
+  authHeroImage: {
+    borderRadius: 8,
+  },
+  mediaShade: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(15, 23, 42, 0.38)',
+  },
   brandBlock: {
-    marginBottom: 26,
+    padding: 18,
   },
   brandEyebrow: {
     color: '#5eead4',
@@ -779,6 +849,39 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 10,
   },
+  dashboardHero: {
+    minHeight: 210,
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    borderRadius: 8,
+  },
+  dashboardHeroImage: {
+    borderRadius: 8,
+  },
+  mediaTextBlock: {
+    padding: 16,
+  },
+  mediaEyebrow: {
+    color: '#99f6e4',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0,
+    textTransform: 'uppercase',
+  },
+  mediaTitle: {
+    marginTop: 5,
+    color: '#ffffff',
+    fontSize: 23,
+    fontWeight: '900',
+    lineHeight: 28,
+  },
+  mediaCaption: {
+    marginTop: 8,
+    color: '#ecfeff',
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '700',
+  },
   metricCard: {
     minWidth: '47%',
     flex: 1,
@@ -821,9 +924,31 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#ffffff',
     marginBottom: 10,
-    padding: 14,
+    padding: 12,
     borderWidth: 1,
     borderColor: '#e2e8f0',
+  },
+  appointmentImage: {
+    height: 96,
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  appointmentImageStyle: {
+    borderRadius: 8,
+  },
+  appointmentImageOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(15, 23, 42, 0.24)',
+    padding: 10,
+  },
+  appointmentImageText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '900',
+    textTransform: 'uppercase',
   },
   appointmentTopline: {
     flexDirection: 'row',
@@ -867,6 +992,12 @@ const styles = StyleSheet.create({
   panelStack: {
     gap: 14,
   },
+  progressHero: {
+    minHeight: 190,
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    borderRadius: 8,
+  },
   measurementGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -895,6 +1026,12 @@ const styles = StyleSheet.create({
     color: '#0f172a',
     fontSize: 28,
     fontWeight: '900',
+  },
+  detailHero: {
+    minHeight: 220,
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    borderRadius: 8,
   },
   detailSubtitle: {
     color: '#475569',
