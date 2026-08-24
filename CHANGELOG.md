@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Copied `public/` assets into standalone Docker runner images so homepage graphics render in production.
 - Restored reliable production sign-in by running Prisma with the binary query engine and a CT117-compatible app container runtime.
 - Restored public page freshness for `/`, `/login`, and `/register` by forcing dynamic rendering and no-store headers.
 - Improved dashboard dark-mode contrast so appointment details, navigation, cards, labels, and supporting text remain readable.
