@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mobile API surface under `/api/mobile/*` with hashed revocable mobile sessions, refresh rotation, rate-limited auth, role-scoped appointment/dashboard access, progress data, and workout logging.
 - Android release builds now require non-committed upload signing inputs instead of falling back to `debug.keystore`.
 - Repeatable MacBook release scripts for Android signed AABs, iOS archives, and App Store Connect IPA exports, including manual iOS signing identity, keychain, and keychain unlock overrides for headless archive builds.
+- iOS AppIcon asset catalog and bundle icon metadata required for App Store Connect validation.
 - Native iOS/Android mobile product roadmap and remote MacBook build plan.
 - Client progress tracking: admins and trainers can record client measurements (weight, body fat, waist, chest, arms) with notes and date.
 - Admin client measurements page at `/dashboard/admin/clients/[id]/measurements` with history table and weight trend chart.
