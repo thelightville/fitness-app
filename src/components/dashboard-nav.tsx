@@ -33,7 +33,7 @@ export function DashboardNav({ user }: { user: { name?: string | null; email?: s
           <div className="flex items-center gap-8">
             <Link
               href="/dashboard"
-              className="flex items-center gap-2 text-xl font-extrabold tracking-tight text-primary-700"
+              className="flex items-center gap-2 text-xl font-extrabold tracking-tight text-slate-950 dark:text-primary-300"
             >
               <div className="rounded-lg bg-primary-600 p-1.5">
                 <Dumbbell className="h-5 w-5 text-white" aria-hidden="true" />

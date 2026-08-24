@@ -71,7 +71,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen overflow-hidden bg-[#f7fbf7] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <header className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-5 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-2 text-lg font-extrabold tracking-tight text-primary-700 dark:text-primary-400 sm:text-xl">
+        <div className="flex min-w-0 items-center gap-2 text-lg font-extrabold tracking-tight text-slate-950 dark:text-primary-300 sm:text-xl">
           <Image
             src="/images/icon-512.png"
             alt="Fitness PT Tracker"
