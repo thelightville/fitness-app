@@ -1,19 +1,23 @@
-name: VM304 harmless gateway pilot
+name: VM304 server-controlled validation
 
 on:
-  push:
-    branches: [feature/vm304-all-repos-pilot-20261010]
   workflow_dispatch:
+    inputs:
+      runner_label:
+        description: Unique one-job label supplied by the server controller
+        required: true
+        type: string
 
 # No checkout, external action, environment, secret or deployment step.
+run-name: VM304 server ${{ inputs.runner_label }}
 permissions: {}
 concurrency:
-  group: vm304-harmless-pilot
+  group: vm304-server-validation
   cancel-in-progress: false
 
 jobs:
   gateway:
-    runs-on: [vm304-pilot-51-20261010]
+    runs-on: ${{ inputs.runner_label }}
     timeout-minutes: 3
     steps:
       - name: Verify non-root runner and gateway
