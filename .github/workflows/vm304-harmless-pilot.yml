@@ -1,0 +1,40 @@
+name: VM304 harmless gateway pilot
+
+on:
+  push:
+    branches: [feature/vm304-all-repos-pilot-20261010]
+  workflow_dispatch:
+
+# No checkout, external action, environment, secret or deployment step.
+permissions: {}
+concurrency:
+  group: vm304-harmless-pilot
+  cancel-in-progress: false
+
+jobs:
+  gateway:
+    runs-on: [vm304-pilot-51-20261010]
+    timeout-minutes: 3
+    steps:
+      - name: Verify non-root runner and gateway
+        shell: bash
+        env:
+          https_proxy: http://10.30.40.1:3128
+          http_proxy: http://10.30.40.1:3128
+          no_proxy: ''
+        run: |
+          set -euo pipefail
+          test "$(id -u)" -ne 0
+          test "$(hostname -s)" = github-runner
+          test "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 1
+          if sudo -n true 2>/dev/null; then exit 1; fi
+          getent ahostsv4 github.com >/dev/null
+          curl --noproxy '' --fail --silent --show-error --max-time 20 https://api.github.com/ >/dev/null
+          for pair in 172.16.16.20:8006 172.16.16.23:22 172.16.16.200:8007 169.254.169.254:80 1.1.1.1:443; do
+            if timeout 2 bash -c "exec 3<>/dev/tcp/${pair%:*}/${pair#*:}" 2>/dev/null; then
+              echo "FAIL forbidden direct access $pair"; exit 1
+            fi
+          done
+          code=$(curl --noproxy '' --silent -o /dev/null -w '%{http_connect}' --max-time 8 https://172.16.16.20/ 2>/dev/null || true)
+          test "$code" = 403
+          echo 'PASS: non-root GitHub job, gateway TLS, private/direct denials; no source executed'
