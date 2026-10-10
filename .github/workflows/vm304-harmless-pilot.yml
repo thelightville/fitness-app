@@ -1,19 +1,17 @@
-name: VM304 harmless gateway pilot
+name: VM304 controlled validation
 
 on:
-  push:
-    branches: [feature/vm304-all-repos-pilot-20261010]
   workflow_dispatch:
 
 # No checkout, external action, environment, secret or deployment step.
 permissions: {}
 concurrency:
-  group: vm304-harmless-pilot
+  group: vm304-controlled-validation
   cancel-in-progress: false
 
 jobs:
   gateway:
-    runs-on: [vm304-pilot-51-20261010]
+    runs-on: [vm304-controlled-127]
     timeout-minutes: 3
     steps:
       - name: Verify non-root runner and gateway
