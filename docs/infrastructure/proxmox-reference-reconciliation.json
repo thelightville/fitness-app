@@ -1,0 +1,51 @@
+{
+  "verified_inventory_sha256": "ea84d7e9891fe6c3f8f2e66408a18457a12af20f2123ed475fd3238fef2d643c",
+  "source_commit_before_annotation": "5e46e9270a457845cb0c167c1d2f4a12c84bffbd",
+  "scope": "Tracked source references found by bounded Proxmox/guest-ID/command text search; not proof of complete infrastructure security",
+  "reference_files": [
+    {
+      "path": "CHANGELOG.md",
+      "guest_labels": [
+        "CT117"
+      ],
+      "operational_command_mentions": 0,
+      "disposition": "Historical/contextual references retained; verify identity, node, isolation and status against current register before execution"
+    },
+    {
+      "path": "docker-compose.ct117.yml",
+      "guest_labels": [
+        "CT117",
+        "ct117"
+      ],
+      "operational_command_mentions": 0,
+      "disposition": "Historical/contextual references retained; verify identity, node, isolation and status against current register before execution"
+    },
+    {
+      "path": "Dockerfile.runner",
+      "guest_labels": [
+        "CT117"
+      ],
+      "operational_command_mentions": 0,
+      "disposition": "Historical/contextual references retained; verify identity, node, isolation and status against current register before execution"
+    },
+    {
+      "path": "docs/deployment.md",
+      "guest_labels": [
+        "CT117",
+        "ct117"
+      ],
+      "operational_command_mentions": 0,
+      "disposition": "Historical/contextual references retained; verify identity, node, isolation and status against current register before execution"
+    },
+    {
+      "path": "scripts/deploy-ct117.sh",
+      "guest_labels": [
+        "CT117",
+        "ct117"
+      ],
+      "operational_command_mentions": 0,
+      "disposition": "Historical/contextual references retained; verify identity, node, isolation and status against current register before execution"
+    }
+  ],
+  "runtime_or_deployment_changed": false
+}

@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "verified_at_utc": "2026-10-23T05:55:51.684930+00:00",
+  "authority": "Authenticated Proxmox cluster inventory; IDs are distinct from preserved service IPs and compatibility labels",
+  "renumbered_roles": {
+    "admin": {
+      "current_ctid": 401,
+      "node": "pve4",
+      "service_ip": "172.16.16.101",
+      "historical_ctid": 101
+    },
+    "cloud_and_portals": {
+      "current_ctid": 403,
+      "node": "pve4",
+      "service_ip": "172.16.16.119",
+      "historical_ctid": 119
+    },
+    "docker_host": {
+      "current_ctid": 101,
+      "node": "pve",
+      "service_ip": "172.16.16.117",
+      "historical_ctid": 117
+    },
+    "monitoring": {
+      "current_ctid": 301,
+      "node": "pve3",
+      "service_ip": "172.16.16.111"
+    },
+    "backup": {
+      "current_ctid": 303,
+      "node": "pve3",
+      "service_ip": "172.16.16.115",
+      "historical_ctid": 115
+    }
+  },
+  "guests": [
+    {
+      "vmid": 100,
+      "type": "qemu",
+      "node": "pve",
+      "name": "ai-node-01",
+      "status": "running"
+    },
+    {
+      "vmid": 101,
+      "type": "lxc",
+      "node": "pve",
+      "name": "docker-host",
+      "status": "running"
+    },
+    {
+      "vmid": 103,
+      "type": "lxc",
+      "node": "pve",
+      "name": "claapp.com.ng",
+      "status": "running"
+    },
+    {
+      "vmid": 105,
+      "type": "lxc",
+      "node": "pve",
+      "name": "bill.i.ng",
+      "status": "running"
+    },
+    {
+      "vmid": 107,
+      "type": "lxc",
+      "node": "pve",
+      "name": "chatbot.myapps.com.ng",
+      "status": "running"
+    },
+    {
+      "vmid": 200,
+      "type": "qemu",
+      "node": "pve2",
+      "name": "ai-node-02",
+      "status": "running"
+    },
+    {
+      "vmid": 201,
+      "type": "lxc",
+      "node": "pve2",
+      "name": "webmail.thelightville.net",
+      "status": "running"
+    },
+    {
+      "vmid": 203,
+      "type": "lxc",
+      "node": "pve2",
+      "name": "app.onlineradio.com.ng",
+      "status": "running"
+    },
+    {
+      "vmid": 205,
+      "type": "lxc",
+      "node": "pve2",
+      "name": "api.onlineradio.com.ng",
+      "status": "running"
+    },
+    {
+      "vmid": 207,
+      "type": "lxc",
+      "node": "pve2",
+      "name": "channel.onlineradio.com.ng",
+      "status": "running"
+    },
+    {
+      "vmid": 209,
+      "type": "lxc",
+      "node": "pve2",
+      "name": "commutiq",
+      "status": "running"
+    },
+    {
+      "vmid": 211,
+      "type": "lxc",
+      "node": "pve2",
+      "name": "smtp",
+      "status": "running"
+    },
+    {
+      "vmid": 213,
+      "type": "lxc",
+      "node": "pve2",
+      "name": "smtp-db",
+      "status": "running"
+    },
+    {
+      "vmid": 215,
+      "type": "lxc",
+      "node": "pve2",
+      "name": "agent-orch",
+      "status": "running"
+    },
+    {
+      "vmid": 217,
+      "type": "lxc",
+      "node": "pve2",
+      "name": "zammad",
+      "status": "running"
+    },
+    {
+      "vmid": 219,
+      "type": "lxc",
+      "node": "pve2",
+      "name": "pmg",
+      "status": "running"
+    },
+    {
+      "vmid": 300,
+      "type": "qemu",
+      "node": "pve3",
+      "name": "windows-workstation",
+      "status": "running"
+    },
+    {
+      "vmid": 301,
+      "type": "lxc",
+      "node": "pve3",
+      "name": "monitoring.thelightville.xyz",
+      "status": "running"
+    },
+    {
+      "vmid": 302,
+      "type": "qemu",
+      "node": "pve3",
+      "name": "kariya-kes-fw",
+      "status": "running"
+    },
+    {
+      "vmid": 303,
+      "type": "lxc",
+      "node": "pve3",
+      "name": "pbs.thelightville.xyz",
+      "status": "running"
+    },
+    {
+      "vmid": 304,
+      "type": "qemu",
+      "node": "pve3",
+      "name": "github-runner",
+      "status": "running"
+    },
+    {
+      "vmid": 306,
+      "type": "qemu",
+      "node": "pve3",
+      "name": "proxmox-datacenter-manager",
+      "status": "running"
+    },
+    {
+      "vmid": 401,
+      "type": "lxc",
+      "node": "pve4",
+      "name": "kariya-admin",
+      "status": "running"
+    },
+    {
+      "vmid": 403,
+      "type": "lxc",
+      "node": "pve4",
+      "name": "kariya-cloud",
+      "status": "running"
+    },
+    {
+      "vmid": 404,
+      "type": "qemu",
+      "node": "pve4",
+      "name": "KARIYA-DEV-01",
+      "status": "running"
+    },
+    {
+      "vmid": 406,
+      "type": "qemu",
+      "node": "pve4",
+      "name": "KARIYA-TEST-01",
+      "status": "running"
+    },
+    {
+      "vmid": 408,
+      "type": "qemu",
+      "node": "pve4",
+      "name": "KARIYA-KES-TEST-01",
+      "status": "running"
+    },
+    {
+      "vmid": 410,
+      "type": "qemu",
+      "node": "pve4",
+      "name": "KARIYA-KEA-LINUX-TEST-01",
+      "status": "running"
+    },
+    {
+      "vmid": 414,
+      "type": "qemu",
+      "node": "pve4",
+      "name": "KARIYA-TEST-VERIFIER-01",
+      "status": "stopped"
+    },
+    {
+      "vmid": 416,
+      "type": "lxc",
+      "node": "pve4",
+      "name": "kariya-release-runner",
+      "status": "running"
+    },
+    {
+      "vmid": 903,
+      "type": "lxc",
+      "node": "pve4",
+      "name": "app.onlineradio.com.ng",
+      "status": "stopped"
+    },
+    {
+      "vmid": 990203,
+      "type": "lxc",
+      "node": "pve2",
+      "name": "php2shell-203-validation",
+      "status": "stopped"
+    },
+    {
+      "vmid": 990208,
+      "type": "lxc",
+      "node": "pve2",
+      "name": "php2shell-207-validation",
+      "status": "stopped"
+    }
+  ],
+  "rules": [
+    "Never infer CTID/VMID from an IP address suffix.",
+    "CT101 currently identifies docker-host, not the Admin host.",
+    "VM306 is the live Proxmox Datacenter Manager, not an available staging ID.",
+    "Retained historical reports and signed evidence describe their original state; use this current registry for operations.",
+    "Protected environment names, runner labels, paths and concurrency keys may retain old IDs as compatibility identifiers; do not rename without migrating their configuration."
+  ],
+  "temporary_remediation_guests": [
+    {
+      "vmid": 990421,
+      "type": "lxc",
+      "node": "pve4",
+      "name": "kariya-batch1-builder",
+      "purpose": "Unprivileged temporary dependency rebuild/test host",
+      "onboot": false,
+      "scope": "Not a production workload; no production credentials provisioned",
+      "status": "stopped"
+    }
+  ]
+}
