@@ -1,6 +1,6 @@
 # Current Proxmox inventory
 
-Verified 2026-10-23T05:55:51.684930+00:00. Registry SHA-256: `ea84d7e9891fe6c3f8f2e66408a18457a12af20f2123ed475fd3238fef2d643c`.
+Verified 2026-10-26T11:15:00.639092+00:00. Registry SHA-256: `318592d09372631c5baa72f505b40f3fa90a8856fa452c18cf95f7a3ed8ca5c2`.
 
 This register supersedes obsolete operational guest IDs in older documents; historical receipts retain their original meaning.
 
@@ -43,16 +43,14 @@ This register supersedes obsolete operational guest IDs in older documents; hist
 | 306 | qemu | pve3 | proxmox-datacenter-manager | running |
 | 401 | lxc | pve4 | kariya-admin | running |
 | 403 | lxc | pve4 | kariya-cloud | running |
-| 404 | qemu | pve4 | KARIYA-DEV-01 | running |
-| 406 | qemu | pve4 | KARIYA-TEST-01 | running |
-| 408 | qemu | pve4 | KARIYA-KES-TEST-01 | running |
-| 410 | qemu | pve4 | KARIYA-KEA-LINUX-TEST-01 | running |
-| 414 | qemu | pve4 | KARIYA-TEST-VERIFIER-01 | stopped |
+| 404 | qemu | pve4 | kariya-dev-01 | running |
+| 406 | qemu | pve4 | kariya-test-01 | running |
 | 416 | lxc | pve4 | kariya-release-runner | running |
-| 903 | lxc | pve4 | app.onlineradio.com.ng | stopped |
-| 990203 | lxc | pve2 | php2shell-203-validation | stopped |
-| 990208 | lxc | pve2 | php2shell-207-validation | stopped |
 
-Service IPs, protected GitHub environments, runner labels, backup-directory names and concurrency locks are independent identities. Retained old-ID aliases must not be used as live Proxmox IDs. Inventory is a dated observation; verify type, node and identity before every mutation.
+The current census contains 27 running guests. Running status does not establish health, patching, incident clearance, KES routing or KEA response readiness. CT203 remains under incident containment.
 
-Temporary remediation guest: CT990421 on pve4 is an unprivileged isolated dependency builder, with onboot disabled. It is separate from production workload IDs.
+CT990203, CT990208 and CT990421 were removed completely on 26 October at the owner’s request. They are retired IDs, not available validation targets. No Proxmox VM/LXC may be created or cloned without explicit prior owner approval.
+
+Previously listed IDs 408, 410, 414 and 903 are absent from this census; this register does not attribute their removal.
+
+Service IPs, protected GitHub environments, runner labels, backup-directory names and concurrency locks are independent identities. Retained old-ID aliases must not be used as live Proxmox IDs. Inventory is a dated observation; verify type, node and identity before every mutation. Historical evidence retains its dated meaning; executable-reference reconciliation remains open.

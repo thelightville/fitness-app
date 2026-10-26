@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "verified_at_utc": "2026-10-23T05:55:51.684930+00:00",
-  "authority": "Authenticated Proxmox cluster inventory; IDs are distinct from preserved service IPs and compatibility labels",
+  "verified_at_utc": "2026-10-26T11:15:00.639092+00:00",
+  "authority": "Authenticated Proxmox cluster census and freshly checked role network configurations; IDs are distinct from preserved service IPs and compatibility labels",
   "renumbered_roles": {
     "admin": {
       "current_ctid": 401,
@@ -206,36 +206,15 @@
       "vmid": 404,
       "type": "qemu",
       "node": "pve4",
-      "name": "KARIYA-DEV-01",
+      "name": "kariya-dev-01",
       "status": "running"
     },
     {
       "vmid": 406,
       "type": "qemu",
       "node": "pve4",
-      "name": "KARIYA-TEST-01",
+      "name": "kariya-test-01",
       "status": "running"
-    },
-    {
-      "vmid": 408,
-      "type": "qemu",
-      "node": "pve4",
-      "name": "KARIYA-KES-TEST-01",
-      "status": "running"
-    },
-    {
-      "vmid": 410,
-      "type": "qemu",
-      "node": "pve4",
-      "name": "KARIYA-KEA-LINUX-TEST-01",
-      "status": "running"
-    },
-    {
-      "vmid": 414,
-      "type": "qemu",
-      "node": "pve4",
-      "name": "KARIYA-TEST-VERIFIER-01",
-      "status": "stopped"
     },
     {
       "vmid": 416,
@@ -243,27 +222,6 @@
       "node": "pve4",
       "name": "kariya-release-runner",
       "status": "running"
-    },
-    {
-      "vmid": 903,
-      "type": "lxc",
-      "node": "pve4",
-      "name": "app.onlineradio.com.ng",
-      "status": "stopped"
-    },
-    {
-      "vmid": 990203,
-      "type": "lxc",
-      "node": "pve2",
-      "name": "php2shell-203-validation",
-      "status": "stopped"
-    },
-    {
-      "vmid": 990208,
-      "type": "lxc",
-      "node": "pve2",
-      "name": "php2shell-207-validation",
-      "status": "stopped"
     }
   ],
   "rules": [
@@ -271,18 +229,41 @@
     "CT101 currently identifies docker-host, not the Admin host.",
     "VM306 is the live Proxmox Datacenter Manager, not an available staging ID.",
     "Retained historical reports and signed evidence describe their original state; use this current registry for operations.",
-    "Protected environment names, runner labels, paths and concurrency keys may retain old IDs as compatibility identifiers; do not rename without migrating their configuration."
+    "Protected environment names, runner labels, paths and concurrency keys may retain old IDs as compatibility identifiers; do not rename without migrating their configuration.",
+    "Do not create or clone any Proxmox VM/LXC guest without explicit prior owner approval."
   ],
-  "temporary_remediation_guests": [
+  "temporary_remediation_guests": [],
+  "retired_remediation_guests": [
+    {
+      "vmid": 990203,
+      "type": "lxc",
+      "node": "pve2",
+      "status": "removed",
+      "removed_on": "2026-10-26",
+      "reason": "Owner explicitly requested complete removal; no prior guest-provisioning approval"
+    },
+    {
+      "vmid": 990208,
+      "type": "lxc",
+      "node": "pve2",
+      "status": "removed",
+      "removed_on": "2026-10-26",
+      "reason": "Owner explicitly requested complete removal; no prior guest-provisioning approval"
+    },
     {
       "vmid": 990421,
       "type": "lxc",
       "node": "pve4",
-      "name": "kariya-batch1-builder",
-      "purpose": "Unprivileged temporary dependency rebuild/test host",
-      "onboot": false,
-      "scope": "Not a production workload; no production credentials provisioned",
-      "status": "stopped"
+      "status": "removed",
+      "removed_on": "2026-10-26",
+      "reason": "Owner explicitly requested complete removal; no prior guest-provisioning approval"
     }
-  ]
+  ],
+  "previously_listed_now_absent_without_deletion_attribution": [
+    408,
+    410,
+    414,
+    903
+  ],
+  "limits": "Dated operational inventory only. Historical reports and protected compatibility labels retain their original IDs; semantic executable-reference reconciliation remains separate."
 }
