@@ -106,6 +106,7 @@ export default function AppointmentDetailPage() {
   const { data: session } = useSession();
   const [appointment, setAppointment] = useState<AppointmentDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [checkInLoading, setCheckInLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [editingSchedule, setEditingSchedule] = useState(false);
@@ -147,13 +148,41 @@ export default function AppointmentDetailPage() {
     }
   }, [isAdmin, isTrainer]);
 
+  function isUsableAppointment(value: unknown): value is AppointmentDetail {
+    if (!value || typeof value !== 'object') return false;
+    const item = value as AppointmentDetail;
+    return typeof item.id === 'string' && typeof item.startsAt === 'string' && typeof item.endsAt === 'string'
+      && Number.isFinite(Date.parse(item.startsAt)) && Number.isFinite(Date.parse(item.endsAt))
+      && Date.parse(item.endsAt) > Date.parse(item.startsAt)
+      && typeof item.client?.user?.email === 'string' && typeof item.trainer?.user?.email === 'string'
+      && typeof item.gymLocation?.name === 'string' && Array.isArray(item.checkIns)
+      && item.checkIns.every((entry) => typeof entry.checkedInAt === 'string' && Number.isFinite(Date.parse(entry.checkedInAt)))
+      && (!item.workoutLog || (Array.isArray(item.workoutLog.workoutExercises)
+        && item.workoutLog.workoutExercises.every((entry) => typeof entry.exercise?.name === 'string' && Array.isArray(entry.sets))));
+  }
+
   async function fetchAppointment() {
     setLoading(true);
-    const res = await fetch(`/api/appointments/${id}`);
-    const data = await res.json();
-    setAppointment(data);
-    setScheduleFormFromAppointment(data);
-    setLoading(false);
+    setLoadError('');
+    setAppointment(null);
+    let failureMessage = 'Could not load this appointment. Please try again.';
+    try {
+      const res = await fetch(`/api/appointments/${id}`);
+      if (!res.ok) {
+        failureMessage = res.status === 401 ? 'Please sign in again to view this appointment.'
+          : res.status === 403 ? 'You do not have access to this appointment.'
+          : res.status === 404 ? 'Appointment not found.' : failureMessage;
+        throw new Error(failureMessage);
+      }
+      const data: unknown = await res.json();
+      if (!isUsableAppointment(data)) throw new Error(failureMessage);
+      setScheduleFormFromAppointment(data);
+      setAppointment(data);
+    } catch {
+      setLoadError(failureMessage);
+    } finally {
+      setLoading(false);
+    }
   }
 
   /** Hydrates the edit form from the appointment's current schedule. */
@@ -191,25 +220,33 @@ export default function AppointmentDetailPage() {
       return;
     }
 
-    const res = await fetch(`/api/appointments/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        status: appointment.status,
-        startsAt: startsAt.toISOString(),
-        endsAt: endsAt.toISOString(),
-        rescheduleReason: 'Schedule updated from appointment details',
-      }),
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      setAppointment(data);
+    try {
+      const res = await fetch(`/api/appointments/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: appointment.status,
+          startsAt: startsAt.toISOString(),
+          endsAt: endsAt.toISOString(),
+          rescheduleReason: 'Schedule updated from appointment details',
+        }),
+      });
+      if (!res.ok) {
+        const validation = [400, 409, 422].includes(res.status) ? await res.json().catch(() => null) : null;
+        const reason = typeof validation?.error === 'string' ? validation.error.slice(0, 300) : null;
+        setMessage(res.status === 401 ? 'Please sign in again before updating this appointment.'
+          : res.status === 403 ? 'You do not have permission to update this appointment.'
+          : reason || 'The update was not confirmed. Refresh the appointment before retrying.');
+        return;
+      }
+      const data: unknown = await res.json();
+      if (!isUsableAppointment(data)) throw new Error('Invalid appointment response');
       setScheduleFormFromAppointment(data);
+      setAppointment(data);
       setEditingSchedule(false);
       setMessage('Appointment schedule updated.');
-    } else {
-      setMessage(data.error || 'Failed to update appointment schedule');
+    } catch {
+      setMessage('The update was not confirmed. Refresh the appointment before retrying.');
     }
   }
 
@@ -345,7 +382,8 @@ export default function AppointmentDetailPage() {
   if (!appointment) {
     return (
       <div className="card text-center py-12">
-        <p className="text-slate-500">Appointment not found.</p>
+        <p role="alert" className="text-slate-500">{loadError || 'Appointment not found.'}</p>
+        <button type="button" onClick={() => void fetchAppointment()} className="btn-primary mt-4 mx-2">Retry loading</button>
         <Link href="/dashboard/appointments" className="btn-secondary mt-4 inline-flex">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back to appointments
@@ -753,7 +791,7 @@ export default function AppointmentDetailPage() {
                         <div>
                           <p className="font-display text-lg font-black text-ink-900 dark:text-white">{entry.exercise.name}</p>
                           <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-                            {[entry.exercise.primaryMuscleGroup, entry.exercise.equipment, entry.blockName].filter(Boolean).join(' · ')}
+                            {[entry.exercise.primaryMuscleGroup, entry.exercise.equipment, entry.blockName].filter(Boolean).join(' Ã‚Â· ')}
                           </p>
                         </div>
                         <span className="rounded-lg bg-primary-300 px-2 py-1 text-xs font-black uppercase text-ink-900">{entry.exercise.category}</span>
@@ -763,7 +801,7 @@ export default function AppointmentDetailPage() {
                           <div key={set.id} className="rounded-lg bg-white p-3 text-sm ring-1 ring-ink-900/10 dark:bg-ink-900 dark:ring-white/10">
                             <p className="font-black text-ink-900 dark:text-white">Set {set.setIndex + 1}</p>
                             <p className="mt-1 font-semibold text-slate-600 dark:text-slate-300">
-                              {set.reps ?? '--'} reps {set.weightKg ? `· ${set.weightKg}kg` : ''} {set.rpe ? `· RPE ${set.rpe}` : ''}
+                              {set.reps ?? '--'} reps {set.weightKg ? `Ã‚Â· ${set.weightKg}kg` : ''} {set.rpe ? `Ã‚Â· RPE ${set.rpe}` : ''}
                             </p>
                           </div>
                         ))}
