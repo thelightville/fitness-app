@@ -10,8 +10,9 @@
   "API_module_delta_between_full_baseline_and_candidate": [],
   "shared_server_factories": "Candidate242sameIDs/exactfunctionbytes asruntime shared7246; preservecurrentchunk, other96sharedartifacts exact. V2mustreverify prior torelease.",
   "auth_fixture": "Actual isolated authenticated SSR/HTTP/Prisma11cases PASS, with ephemeral JWTs and7DMMF-generated fixture tables/constraints; allowned fixtures cleaned. No realaccount or production write.",
-  "release_gate": "FAIL same-BuildID chunk5105alreadyloaded means newmodule56758notloaded in actualNext15preloader syntheticcachetest. Three-artifact image quarantined. Need qualifiedfreshdeploymentidentity/noncollidingloaderstrategy and stale-tab/hydration validation before release. Source/build/SSRpasses do not waive this gate.",
+  "release_gate": "Previous same-ID prototype remainsquarantined. Newnoncollidingchunk20056758/auxiliaryfactories20020063+20084220,5numeric changes with exactinverse/manifest-onlyreference edits,15refusal/integrity cases and actualChrome8cases resolve cachegate. Actual current-head hostedCI/eligible reviews/guardedrollout stillrequired; not deployed.",
   "live_or_available": false,
   "review_and_release": "Eligible exact-head sourceCI and release review, three-file image qualification/currentinputguards/rollback still required; independent Ramsey and ownerUATafteractualdeployment.",
-  "CI_limits": "HostedCI runs only sourcebinding8realGit, compiler-only frozenTS5.3.3 withoutscripts, actualsourceform29 and existingmanagepredicate10 syntheticcases, not full Next/runtimeSQL/SSR."
+  "CI_limits": "HostedCI runs only sourcebinding8realGit, compiler-only frozenTS5.3.3 withoutscripts, actualsourceform29 and existingmanagepredicate10 syntheticcases, not full Next/runtimeSQL/SSR.",
+  "browser_qualification": "Actual installedChrome freshprofile/isolatedJWT and7fixturetables: baselinehydrated, originalbadstaletabfailure reproduced, fixedsameopentabformhydrated/opened/saved/refreshed, coldform/client403/anonymousredirect/audit passed. No realuser/session/transaction. Fixturescleanupmustbeconfirmed."
 }

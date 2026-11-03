@@ -71,6 +71,7 @@ jobs:
         run: |
           node qa/fit006-recording/tests/recording-contract.cjs qa/fit006-recording/candidate/source/src/components/dashboard/trainer-progress-form.tsx
           node qa/fit006-recording/tests/manage-contract.cjs qa/fit006-recording/existing/manage-function.json qa/fit006-recording/existing/measurements-route.ts
+          node qa/fit006-recording/tests/namespace-contract.cjs qa/fit006-recording
       - name: Python overlay syntax and immutable source
         run: |
           python3 - <<'PY'

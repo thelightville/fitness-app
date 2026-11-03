@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "passed": 8,
+  "cases": [
+    "actual baseline trainer page hydrated in fresh Chrome with synthetic fixture cookie",
+    "actual already-open-tab refresh reproduced quarantined same-chunk failure",
+    "actual existing old dashboard tab refreshed to namespaced component and opened interactive form without client error",
+    "actual browser form saved one synthetic measurement and refreshed date/weight/zero bodyfat/waist",
+    "cold namespaced page hydrated and form opened",
+    "actual client dashboard excluded trainer form and browser POST was forbidden",
+    "only one synthetic measurement/audit added; rejected client request did not mutate fixture",
+    "anonymous browser navigated to existing login gate"
+  ],
+  "browser": "installed Chrome headless with fresh sandboxed profile/CDP",
+  "synthetic_only": true,
+  "production_database_account_or_transaction": false,
+  "candidate_image": "sha256:733ec54d5dbdce7d6a47bcc7ac6508cfcfa623da051b94c8bde66b492ea3c27e",
+  "namespace_chunk": 20056758,
+  "audit": {
+    "measurements": 2,
+    "audits": 1,
+    "actor": "t1-user"
+  },
+  "limits": "Actual browser on isolated fixture with synthetic JWT/data; not independent tester or owner UAT.",
+  "fixed_client_error_count": 0,
+  "expected_quarantined_prototype_error_count": 1
+}
