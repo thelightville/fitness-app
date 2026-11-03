@@ -1,0 +1,5 @@
+FIT-006 partial trainer progress worklist
+
+Read-only latest weight/body fat/waist/date for deduplicated clients from the five existing displayed trainer sessions. The SQL query also enforces a shared appointment with the current trainer. No new route, broad client directory, notes, writes or permissions. Open session reuses existing authorized appointment routes; FIT005 labels and all Client/Admin content are preserved. This is not full trainer management acceptance.
+
+Source and pure compiled function fragments are code-only fixtures. No full server bundle, private records or environment is published. Old repository Next14 is not deployed over actual Next15.5.28. Full source noEmit with Next15.5.28/Prisma5.22 passed offline; actual current runtime Prisma/React plus isolated Postgres passed eight cases. CI separately runs pure source/compiled/access/JSX contracts and real Git integrity refusal cases. It never deploys or accesses accounts/databases. Guarded image preview, exact review/checks and immediate rollback remain before release.

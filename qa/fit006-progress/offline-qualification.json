@@ -1,0 +1,10 @@
+{
+  "scope": "Separately executed offline evidence, not a substituted GitHub job",
+  "Next": "15.5.28",
+  "Prisma": "5.22.0",
+  "TypeScript": "5.9.3",
+  "full_noEmit_before_candidate": "PASS",
+  "actual_runtime_Postgres_React_cases": 8,
+  "runtime_access_module_before_sha256": "1a95201dab81c91bbf01dd69ebf88934263c31078dee929141b63d2b7d21e846",
+  "operational_data_or_database": false
+}
