@@ -1,0 +1,4 @@
+{
+  "name": "D",
+  "source": "async function D(a,b){if(!a?.user)return!1;if(a.user.role===y.UserRole.ADMIN)return!0;if(a.user.role===y.UserRole.TRAINER){let c=await x.z.trainer.findUnique({where:{userId:a.user.id},select:{id:!0}});return!!c&&!!await x.z.appointment.findFirst({where:{clientId:b,trainerId:c.id},select:{id:!0}})}return!1}"
+}

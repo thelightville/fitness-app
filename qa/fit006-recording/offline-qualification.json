@@ -1,0 +1,17 @@
+{
+  "partial_issue": "FIT-006",
+  "two_source_changes_only": true,
+  "actual_full_Next_builds": "Next15.5.28/Prisma5.22/TS5.9.3 baseline and recording v1/v2 passed with CPU1/capturedexactfontinput harness. No rootNext14 install/replacement.",
+  "fonts": "Nine captured public WOFF2 inputs match deployedfontSHA, active11fontface declarations equal; build networknone. Retain exact existing activeCSS and use only existing classes in form.",
+  "source_contracts": 29,
+  "existing_manage_guard_source_compiled_cases": 10,
+  "before_and_candidate_typecheck": "Fullcurrentdependencies noEmit PASS; fullv2 build includes finalguard/style changes.",
+  "actual_backend_change": false,
+  "API_module_delta_between_full_baseline_and_candidate": [],
+  "shared_server_factories": "Candidate242sameIDs/exactfunctionbytes asruntime shared7246; preservecurrentchunk, other96sharedartifacts exact. V2mustreverify prior torelease.",
+  "auth_fixture": "Actual isolated authenticated SSR/HTTP/Prisma11cases PASS, with ephemeral JWTs and7DMMF-generated fixture tables/constraints; allowned fixtures cleaned. No realaccount or production write.",
+  "release_gate": "FAIL same-BuildID chunk5105alreadyloaded means newmodule56758notloaded in actualNext15preloader syntheticcachetest. Three-artifact image quarantined. Need qualifiedfreshdeploymentidentity/noncollidingloaderstrategy and stale-tab/hydration validation before release. Source/build/SSRpasses do not waive this gate.",
+  "live_or_available": false,
+  "review_and_release": "Eligible exact-head sourceCI and release review, three-file image qualification/currentinputguards/rollback still required; independent Ramsey and ownerUATafteractualdeployment.",
+  "CI_limits": "HostedCI runs only sourcebinding8realGit, compiler-only frozenTS5.3.3 withoutscripts, actualsourceform29 and existingmanagepredicate10 syntheticcases, not full Next/runtimeSQL/SSR."
+}

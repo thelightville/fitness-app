@@ -1,0 +1,17 @@
+{
+  "base_image": "sha256:052ff2c29e4acae99a31aa58172cf01bc0a9590a4feaeae75f5f340d4cc0a520",
+  "changed_files": {
+    "server/app/dashboard/page.js": "5176a3252a08a6540603ef6f0279bb56616f1443b95d11463aac4ba8eb41f4cd",
+    "server/app/dashboard/page_client-reference-manifest.js": "9b59264592dc628671b6e8b0da7f8c485d339e364500e59e18879013db5d377f",
+    "static/chunks/app/dashboard/page-d3b1c7c81786b467.js": "be5a35ca0d9d222c16e2c9f057e988416ef5d38630e6a72cfacbdbeaabdc0d25"
+  },
+  "before_files": {
+    "server/app/dashboard/page.js": "542f3851c1d8c57b438f92d202ac7fc83649da4e640a6a389d1d04e6979eb50a",
+    "server/app/dashboard/page_client-reference-manifest.js": "3217fbd3556104353749cc57e8038ecf02fe9b40e670b47364bb9e5241181213"
+  },
+  "current_CSS_retained": "static/css/1fbfed7cb3c9c007.css",
+  "inherited_client_dependency_hashes_verified": true,
+  "compiled_client_module_id": 56758,
+  "manifest_rewrite": "Only candidate stylesheet path rebound to exact active stylesheet; form uses existing classes. No API, shared chunk, root manifest, runtime BuildID, CSS, auth or DB change.",
+  "candidate_artifact_fingerprint": "e67e24507c3922ce5e09221d5a1501f8032390071b60bdc8880b18d53658752c"
+}
