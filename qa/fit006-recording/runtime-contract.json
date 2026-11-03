@@ -1,0 +1,57 @@
+{
+  "base_image": "sha256:052ff2c29e4acae99a31aa58172cf01bc0a9590a4feaeae75f5f340d4cc0a520",
+  "changed_files": {
+    "server/app/dashboard/page.js": "5176a3252a08a6540603ef6f0279bb56616f1443b95d11463aac4ba8eb41f4cd",
+    "server/app/dashboard/page_client-reference-manifest.js": "90a475e24a1ca28bb77e185dddacf87eaa529860be968b72b34aa723def60b9d",
+    "static/chunks/app/dashboard/fit006-recording-c6e9b0d338fc451f.js": "c6e9b0d338fc451f7f64969f5707615855dbd53196a2a832503d25f5c184496e"
+  },
+  "before_files": {
+    "server/app/dashboard/page.js": "542f3851c1d8c57b438f92d202ac7fc83649da4e640a6a389d1d04e6979eb50a",
+    "server/app/dashboard/page_client-reference-manifest.js": "3217fbd3556104353749cc57e8038ecf02fe9b40e670b47364bb9e5241181213"
+  },
+  "candidate_artifact_fingerprint": "b7f53ca7918961a3ffdac34ffcfdbb27d1c6e31270413a9c30871eb4c7b84f02",
+  "source_application_revision": "96cf56c1b0e33e58f0ec322252de9da4ecc376c3",
+  "namespace": {
+    "from_chunk_id": 5105,
+    "to_chunk_id": 20056758,
+    "new_module_id": 56758,
+    "factory_hashes": {
+      "20063": "0d27a3bef7b7f2a89f8b47592364c6ef889a90e0205358f443b0155b9c32e4ae",
+      "56758": "c34d530c09d2b826eaca22ad8e825b4d4e590574d00866f3c9ce1854d4afc400",
+      "84220": "1d7e61875083d538e6772cd7d49dc64b7444e8b6eb138d2787af365d20c97709"
+    },
+    "auxiliary_module_namespace": {
+      "20063": 20020063,
+      "84220": 20084220
+    },
+    "namespace_numeric_edits": 5,
+    "all_factory_code_unchanged_after_inverse_namespace": true,
+    "manifest_other_fields_unchanged": true,
+    "exact_chunk_inverse": true,
+    "references": [
+      {
+        "module_id": 45,
+        "key": "/qa/node_modules/lucide-react/dist/esm/Icon.mjs"
+      },
+      {
+        "module_id": 52619,
+        "key": "/qa/node_modules/next/dist/client/app-dir/link.js"
+      },
+      {
+        "module_id": 52619,
+        "key": "/qa/node_modules/next/dist/esm/client/app-dir/link.js"
+      },
+      {
+        "module_id": 56758,
+        "key": "/qa/src/components/dashboard/trainer-progress-form.tsx"
+      }
+    ],
+    "chunk_sha256": "c6e9b0d338fc451f7f64969f5707615855dbd53196a2a832503d25f5c184496e",
+    "manifest_sha256": "90a475e24a1ca28bb77e185dddacf87eaa529860be968b72b34aa723def60b9d",
+    "source_chunk_sha256": "be5a35ca0d9d222c16e2c9f057e988416ef5d38630e6a72cfacbdbeaabdc0d25",
+    "source_manifest_sha256": "9b59264592dc628671b6e8b0da7f8c485d339e364500e59e18879013db5d377f",
+    "existing_chunk_ids_checked": 74,
+    "existing_module_keys_checked": 673,
+    "path": "static/chunks/app/dashboard/fit006-recording-c6e9b0d338fc451f.js"
+  }
+}

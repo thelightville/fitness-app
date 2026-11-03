@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "repository": "thelightville/fitness-app",
+  "implementation": "Kariya-AI",
+  "review": "thelightville",
+  "branch": "fix/fit006-trainer-recording-20261103",
+  "base": "main",
+  "read_token": true,
+  "can_approve_reviews": false,
+  "allowed_actions": [
+    "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+    "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+  ],
+  "settings_mutation_required": false,
+  "existing_pilot_and_Copilot": "unchanged/noeventreplay",
+  "scope": "Exact same-repo reviewedsource before tooling, isolatedcompileronly. No secrets/selfhosted/signing/deploy/backend/pilot route."
+}
