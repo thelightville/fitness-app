@@ -1,0 +1,13 @@
+{
+  "scope": "FIT006 bounded read-only progress qualification. Current image/Prisma/Postgres/React/Next15 noEmit separately qualified; CI pure source/compiled/access contracts only, no live/auth/database/deployment.",
+  "actions": "selected",
+  "patterns": [
+    "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+    "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+  ],
+  "token": "read/cannotapprove",
+  "pilot": "Historical380692703/Copilot metadata and existing FIT005 workflow preserved at base43fe21f8; no dispatch/change",
+  "implementation": "Kariya-AI",
+  "review": "thelightville exact head",
+  "admission": "Existing selected-two exact actions/readtoken unchanged and verified. No settings/event/pilot/permission replay."
+}
