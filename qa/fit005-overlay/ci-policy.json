@@ -1,0 +1,13 @@
+{
+  "scope": "FIT005 pure renderer overlay qualification only, no live deploy, EAS, secrets, backend, root app install or production build. Repository Next14 is not substituted for runtimeNext15.5.28. Exact source/review before tooling; isolated compiler only.",
+  "actions": "selected",
+  "patterns": [
+    "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+    "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+  ],
+  "token": "read/cannotapprove",
+  "pilot": "Historical380692703 and Copilot metadata preserved; no current workflow file at base54713de1; no dispatch/change",
+  "implementation": "Kariya-AI",
+  "review": "thelightville exact head",
+  "admission": "Existing repository enabled/all/read token; after exact-head technical review align only selected two pinned actions; no membership/visibility/runner/branch changes."
+}

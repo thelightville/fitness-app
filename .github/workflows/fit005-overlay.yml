@@ -1,0 +1,78 @@
+name: Reviewed FIT005 role context
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+  pull-requests: read
+concurrency:
+  group: fit005-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  source:
+    if: github.event.pull_request.head.ref == 'fix/fit005-trainer-context-20261103'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    outputs:
+      source: ${{ steps.review.outputs.source }}
+    steps:
+      - name: Admit only exact reviewed implementation before tooling
+        id: review
+        env:
+          TOKEN: ${{ github.token }}
+          SOURCE: ${{ github.event.pull_request.head.sha }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          python3 - <<'PY'
+          import os,json,re,time,urllib.request
+          sha=os.environ['SOURCE'];prnum=os.environ['PR'];assert re.fullmatch('[a-f0-9]{40}',sha)and prnum.isdigit()
+          def get(path):
+              req=urllib.request.Request('https://api.github.com/repos/thelightville/fitness-app'+path,headers={'Authorization':'Bearer '+os.environ['TOKEN'],'Accept':'application/vnd.github+json'})
+              with urllib.request.urlopen(req,timeout=20)as r:return json.load(r)
+          for attempt in range(90):
+              pr=get('/pulls/'+prnum)
+              assert pr['state']=='open'and not pr['merged']and pr['user']['login']=='Kariya-AI'and pr['base']['ref']=='main'and pr['head']['sha']==sha and pr['head']['repo']['full_name']=='thelightville/fitness-app'and pr['head']['ref']=='fix/fit005-trainer-context-20261103'
+              reviews=[r for r in get('/pulls/'+prnum+'/reviews?per_page=100')if r['commit_id']==sha]
+              assert not any(r['state']=='CHANGES_REQUESTED'for r in reviews)
+              if any(r['state']=='APPROVED'and r['user']['login']=='thelightville'for r in reviews):
+                  with open(os.environ['GITHUB_OUTPUT'],'a')as f:f.write('source='+sha+'\n')
+                  break
+              if attempt==89:raise RuntimeError('Exact review unavailable, no tooling admitted')
+              time.sleep(10)
+          PY
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ steps.review.outputs.source }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Bind exact clean source before package tooling
+        run: python3 qa/fit005-overlay/verify-source.py '${{ steps.review.outputs.source }}'
+      - name: Real Git refusal cases
+        run: python3 qa/fit005-overlay/tests/source-binding.py
+  contracts:
+    needs: source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ needs.source.outputs.source }}
+          fetch-depth: 0
+          persist-credentials: false
+      - run: python3 qa/fit005-overlay/verify-source.py '${{ needs.source.outputs.source }}'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.23.4'
+      - name: Install only isolated exact compiler lock without lifecycle
+        working-directory: qa/fit005-overlay
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Actual source and compiled function role contracts
+        run: node qa/fit005-overlay/tests/contract.cjs
+      - name: Python overlay syntax and immutable source
+        run: |
+          python3 - <<'PY'
+          import ast,pathlib
+          ast.parse(pathlib.Path('qa/fit005-overlay/stage-overlay.py').read_text())
+          PY
+          python3 qa/fit005-overlay/verify-source.py '${{ needs.source.outputs.source }}'
