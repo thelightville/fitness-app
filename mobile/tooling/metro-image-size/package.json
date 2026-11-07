@@ -1,0 +1,9 @@
+{
+  "name": "@fitness/metro-image-size",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.cjs",
+  "dependencies": {
+    "image-size-core": "npm:image-size@2.1.0"
+  }
+}

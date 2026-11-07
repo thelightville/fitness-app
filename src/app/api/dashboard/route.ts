@@ -1,3 +1,4 @@
+import { assignedClient } from '@/lib/trainer-access';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
@@ -22,6 +23,7 @@ export async function GET() {
     const trainer = await prisma.trainer.findUnique({ where: { userId: session.user.id } });
     if (!trainer) return NextResponse.json({ error: 'Trainer profile not found' }, { status: 404 });
     where.trainerId = trainer.id;
+    where.client = assignedClient(session.user.id);
   }
 
   const [total, completed, cancelled, noShow, upcoming, workoutBreakdown, trainerUtilization] =

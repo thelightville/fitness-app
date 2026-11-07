@@ -29,9 +29,10 @@ export async function GET() {
 
   const users = await prisma.user.findMany({
     orderBy: { createdAt: 'desc' },
-    include: {
+    select: {
+      id: true, name: true, email: true, phone: true, role: true, createdAt: true,
       client: { select: { id: true, active: true } },
-      trainer: { select: { id: true, active: true, specialties: true } },
+      trainer: { select: { id: true, active: true, approvedAt: true, bio: true, specialties: true, clients: { select: { id: true } } } },
     },
   });
 
@@ -65,14 +66,11 @@ export async function POST(req: NextRequest) {
       phone,
       password: hashedPassword,
       role,
+      ...(role === UserRole.CLIENT && { client: { create: { active } } }),
+      ...(role === UserRole.TRAINER && { trainer: { create: { active, approvedAt: active ? new Date() : null, specialties: [] } } }),
     },
+    select: { id: true, name: true, email: true, phone: true, role: true },
   });
-
-  if (role === UserRole.CLIENT) {
-    await prisma.client.create({ data: { userId: user.id, active } });
-  } else if (role === UserRole.TRAINER) {
-    await prisma.trainer.create({ data: { userId: user.id, active } });
-  }
 
   await logAudit({
     actorId: session!.user.id,

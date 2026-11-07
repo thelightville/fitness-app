@@ -1,3 +1,4 @@
+import { trainerCanAccessClient } from '@/lib/trainer-access';
 import { NextRequest, NextResponse } from 'next/server';
 import { UserRole } from '@prisma/client';
 import { prisma } from '@/lib/db';
@@ -13,15 +14,7 @@ async function resolveClientId(userId: string, role: UserRole, requestedClientId
   if (!requestedClientId) return null;
   if (role === UserRole.ADMIN) return requestedClientId;
 
-  const trainer = await prisma.trainer.findUnique({ where: { userId }, select: { id: true } });
-  if (!trainer) return null;
-
-  const sharedAppointment = await prisma.appointment.findFirst({
-    where: { clientId: requestedClientId, trainerId: trainer.id },
-    select: { id: true },
-  });
-
-  return sharedAppointment ? requestedClientId : null;
+  return await trainerCanAccessClient(userId, requestedClientId) ? requestedClientId : null;
 }
 
 export async function GET(req: NextRequest) {
@@ -39,10 +32,14 @@ export async function GET(req: NextRequest) {
     }),
     prisma.measurement.findMany({ where: { clientId }, orderBy: { measuredAt: 'desc' }, take: 20 }),
     prisma.workoutLog.findMany({
-      where: { appointment: { clientId } },
+      where: { appointment: { clientId, ...(auth.user.role === UserRole.TRAINER ? { trainer: { userId: auth.user.id } } : {}) } },
       orderBy: { completedAt: 'desc' },
       take: 20,
       include: {
+        workoutExercises: {
+          orderBy: { orderIndex: 'asc' },
+          include: { exercise: true, sets: { orderBy: { setIndex: 'asc' } } },
+        },
         appointment: {
           include: {
             trainer: { include: { user: { select: { name: true, email: true } } } },

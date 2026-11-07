@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['bcryptjs'],
-  },
+  serverExternalPackages: ['bcryptjs'],
+  generateBuildId: async () => process.env.FITNESS_BUILD_REVISION || null,
   images: {
     remotePatterns: [],
   },

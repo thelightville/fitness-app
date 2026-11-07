@@ -1,3 +1,4 @@
+import { assignedClient, trainerCanAccessClient } from './trainer-access';
 import { AppointmentStatus, UserRole } from '@prisma/client';
 import { prisma } from './db';
 import type { MobileUser } from './mobile-auth';
@@ -6,7 +7,14 @@ export const mobileAppointmentInclude = {
   client: { include: { user: { select: { name: true, email: true } } } },
   trainer: { include: { user: { select: { name: true, email: true } } } },
   gymLocation: true,
-  workoutLog: true,
+  workoutLog: {
+    include: {
+      workoutExercises: {
+        orderBy: { orderIndex: 'asc' as const },
+        include: { exercise: true, sets: { orderBy: { setIndex: 'asc' as const } } },
+      },
+    },
+  },
   checkIns: { orderBy: { checkedInAt: 'desc' as const }, take: 1 },
 };
 
@@ -22,6 +30,7 @@ export async function getMobileAppointmentWhere(user: MobileUser) {
     const trainer = await prisma.trainer.findUnique({ where: { userId: user.id } });
     if (!trainer) return null;
     where.trainerId = trainer.id;
+    where.client = assignedClient(user.id);
   }
 
   return where;
@@ -41,7 +50,8 @@ export async function getMobileAppointmentContext(id: string, user: MobileUser) 
 
   const isOwner =
     (user.role === UserRole.CLIENT && appointment.client.user.id === user.id) ||
-    (user.role === UserRole.TRAINER && appointment.trainer.user.id === user.id) ||
+    (user.role === UserRole.TRAINER && appointment.trainer.user.id === user.id
+      && await trainerCanAccessClient(user.id, appointment.clientId)) ||
     user.role === UserRole.ADMIN;
 
   if (!isOwner) return { error: 'Forbidden', status: 403 as const };

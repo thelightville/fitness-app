@@ -3,33 +3,57 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 15, 23, 42;
-  --background-rgb: 248, 250, 252;
+  --brand-ink: 16 19 15;
+  --brand-ink-soft: 38 43 32;
+  --brand-paper: 250 250 244;
+  --brand-card: 255 255 255;
+  --brand-muted: 100 116 139;
+  --brand-line: 224 222 207;
+  --brand-accent: 190 242 100;
+  --brand-accent-strong: 132 204 22;
+  --brand-flame: 249 115 22;
+  --foreground-rgb: var(--brand-ink);
+  --background-rgb: var(--brand-paper);
 }
 
 .dark {
-  --foreground-rgb: 226, 232, 240;
-  --background-rgb: 15, 23, 42;
+  --brand-ink: 248 250 252;
+  --brand-ink-soft: 226 232 240;
+  --brand-paper: 11 14 10;
+  --brand-card: 24 29 21;
+  --brand-muted: 148 163 184;
+  --brand-line: 255 255 255 / 0.12;
+  --brand-accent: 217 249 157;
+  --brand-accent-strong: 190 242 100;
+  --brand-flame: 251 146 60;
+  --foreground-rgb: var(--brand-ink);
+  --background-rgb: var(--brand-paper);
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
+  font-family: var(--font-body), Manrope, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+::selection {
+  background: rgb(190 242 100);
+  color: rgb(16 19 15);
+}
+
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:scale-[0.98] dark:focus:ring-offset-slate-900;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-black transition-all focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 active:scale-[0.98] dark:focus:ring-offset-ink-900;
   }
 
   .btn-primary {
-    @apply btn bg-primary-600 text-white shadow-sm hover:bg-primary-700 hover:shadow-md;
+    @apply btn bg-primary-300 text-ink-900 shadow-sm ring-1 ring-inset ring-primary-200 hover:bg-primary-200 hover:shadow-md dark:bg-primary-300 dark:text-ink-900 dark:hover:bg-primary-200;
   }
 
   .btn-secondary {
-    @apply btn bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700;
+    @apply btn bg-ink-900 text-white ring-1 ring-inset ring-ink-700 hover:bg-ink-800 dark:bg-white dark:text-ink-900 dark:ring-white dark:hover:bg-primary-100;
   }
 
   .btn-danger {
@@ -37,11 +61,11 @@ body {
   }
 
   .btn-ghost {
-    @apply btn text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100;
+    @apply btn text-ink-900 hover:bg-primary-100 hover:text-ink-900 dark:text-slate-200 dark:hover:bg-white/10 dark:hover:text-white;
   }
 
   .card {
-    @apply rounded-xl border border-slate-200 bg-white p-6 shadow-card transition-shadow dark:border-slate-700 dark:bg-slate-800;
+    @apply rounded-lg border border-[rgb(var(--brand-line))] bg-[rgb(var(--brand-card))] p-6 shadow-card transition-shadow dark:border-white/10 dark:bg-[rgb(var(--brand-card))];
   }
 
   .card-hover {
@@ -49,7 +73,7 @@ body {
   }
 
   .input {
-    @apply block w-full rounded-lg border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500;
+    @apply block w-full rounded-lg border-[rgb(var(--brand-line))] bg-[rgb(var(--brand-card))] px-3 py-2.5 text-sm text-ink-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-400/30 dark:text-slate-100 dark:placeholder:text-slate-500;
   }
 
   .label {
@@ -61,11 +85,11 @@ body {
   }
 
   .section-title {
-    @apply text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100;
+    @apply text-lg font-bold tracking-tight text-ink-900 dark:text-slate-100;
   }
 
   .page-title {
-    @apply text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100;
+    @apply text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl dark:text-slate-100;
   }
 
   .page-subtitle {
@@ -90,6 +114,76 @@ body {
 
   .table-cell {
     @apply whitespace-nowrap px-4 py-3 text-sm text-slate-700 dark:text-slate-300;
+  }
+}
+
+@layer utilities {
+  .motion-rise {
+    animation: motionRise 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .motion-fade {
+    animation: motionFade 0.9s ease both;
+  }
+
+  .motion-drift {
+    animation: motionDrift 18s ease-in-out infinite alternate;
+  }
+
+  .motion-delay-1 {
+    animation-delay: 90ms;
+  }
+
+  .motion-delay-2 {
+    animation-delay: 180ms;
+  }
+
+  .motion-delay-3 {
+    animation-delay: 270ms;
+  }
+
+  .motion-delay-4 {
+    animation-delay: 360ms;
+  }
+}
+
+@keyframes motionRise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes motionFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes motionDrift {
+  from {
+    transform: scale(1.03) translate3d(-1.2%, 0, 0);
+  }
+  to {
+    transform: scale(1.1) translate3d(1.2%, -1%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

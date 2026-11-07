@@ -14,11 +14,14 @@ interface User {
   phone: string | null;
   role: UserRole;
   createdAt: string;
-  trainer: { id: string; active: boolean; bio: string | null; specialties: string[] } | null;
+  trainer: { id: string; active: boolean; approvedAt: string | null; clients: { id: string }[]; bio: string | null; specialties: string[] } | null;
 }
+
+interface ClientOption { name: string | null; email: string; client: { id: string; active: boolean } | null; role: UserRole }
 
 export default function AdminTrainersPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [clients, setClients] = useState<ClientOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<User | null>(null);
@@ -32,6 +35,8 @@ export default function AdminTrainersPage() {
     bio: '',
     specialties: '',
     active: true,
+    trainerApproved: true,
+    trainerClientIds: [] as string[],
   });
 
   useEffect(() => {
@@ -41,13 +46,19 @@ export default function AdminTrainersPage() {
   async function fetchUsers() {
     setLoading(true);
     const res = await fetch('/api/admin/users');
+    if (!res.ok) {
+      setError('Could not load trainer and client accounts');
+      setLoading(false);
+      return;
+    }
     const data = await res.json();
+    setClients(data.filter((user: ClientOption) => user.role === UserRole.CLIENT && user.client));
     setUsers(data.filter((u: User) => u.role === UserRole.TRAINER));
     setLoading(false);
   }
 
   function resetForm() {
-    setForm({ name: '', email: '', phone: '', password: '', bio: '', specialties: '', active: true });
+    setForm({ name: '', email: '', phone: '', password: '', bio: '', specialties: '', active: true, trainerApproved: true, trainerClientIds: [] });
     setEditing(null);
     setShowForm(false);
   }
@@ -62,6 +73,8 @@ export default function AdminTrainersPage() {
       bio: user.trainer?.bio || '',
       specialties: user.trainer?.specialties?.join(', ') || '',
       active: user.trainer?.active ?? true,
+      trainerApproved: !!user.trainer?.approvedAt,
+      trainerClientIds: user.trainer?.clients.map(({ id }) => id) ?? [],
     });
     setShowForm(true);
   }
@@ -76,7 +89,10 @@ export default function AdminTrainersPage() {
       role: UserRole.TRAINER,
       specialties: form.specialties.split(',').map((s) => s.trim()).filter(Boolean),
     };
-    delete payload.specialtiesInput;
+    if (!editing) {
+      delete payload.trainerApproved;
+      delete payload.trainerClientIds;
+    }
 
     if (!editing && !payload.password) {
       setError('Password is required for new users');
@@ -226,6 +242,23 @@ export default function AdminTrainersPage() {
                 Active
               </label>
             </div>
+            {editing && (
+              <fieldset className="space-y-3 sm:col-span-2">
+                <legend className="label">Trainer access</legend>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={form.trainerApproved}
+                    onChange={(e) => setForm({ ...form, trainerApproved: e.target.checked })} />
+                  Approve this trainer to sign in
+                </label>
+                <label htmlFor="trainer-clients" className="label">Assigned clients</label>
+                <select id="trainer-clients" multiple value={form.trainerClientIds} className="input"
+                  onChange={(e) => setForm({ ...form, trainerClientIds: Array.from(e.target.selectedOptions, ({ value }) => value) })}>
+                  {clients.map(({ client, name, email }) => client && (
+                    <option key={client.id} value={client.id}>{name || email}{client.active ? '' : ' (inactive)'}</option>
+                  ))}
+                </select>
+              </fieldset>
+            )}
             <div className="sm:col-span-2">
               <button type="submit" className="btn-primary">
                 {editing ? 'Update Trainer' : 'Create Trainer'}
@@ -279,7 +312,7 @@ export default function AdminTrainersPage() {
                     <span
                       className={`badge ${user.trainer?.active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}
                     >
-                      {user.trainer?.active ? 'Active' : 'Inactive'}
+                      {!user.trainer?.approvedAt ? 'Needs approval' : user.trainer.active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="table-cell dark:text-slate-300">{new Date(user.createdAt).toLocaleDateString()}</td>

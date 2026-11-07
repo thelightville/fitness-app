@@ -30,14 +30,9 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const userRole = req.auth?.user?.role;
 
-  const isApiAuthRoute = nextUrl.pathname.startsWith('/api/auth');
   const isPublicRoute = ['/', '/login', '/register'].includes(nextUrl.pathname);
   const isDashboardRoute = nextUrl.pathname.startsWith('/dashboard');
   const isAdminRoute = nextUrl.pathname.startsWith('/dashboard/admin');
-
-  if (isApiAuthRoute) {
-    return NextResponse.next();
-  }
 
   if (isLoggedIn && (nextUrl.pathname === '/login' || nextUrl.pathname === '/register')) {
     return withNoCacheHeaders(NextResponse.redirect(new URL('/dashboard', nextUrl)));
@@ -59,5 +54,6 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.png$).*)'],
+  runtime: 'nodejs',
+  matcher: ['/', '/login', '/register', '/dashboard/:path*'],
 };

@@ -12,32 +12,32 @@ import {
 
 const statusConfig: Record<AppointmentStatus, { style: string; icon: typeof HelpCircle; label: string }> = {
   PENDING: {
-    style: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:ring-amber-800',
+    style: 'bg-flame-100 text-flame-600 ring-flame-300 dark:bg-flame-500/15 dark:text-flame-300 dark:ring-flame-300/20',
     icon: Clock,
     label: 'Pending',
   },
   CONFIRMED: {
-    style: 'bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-800',
+    style: 'bg-cyan-50 text-cyan-700 ring-cyan-200 dark:bg-cyan-400/15 dark:text-cyan-200 dark:ring-cyan-300/20',
     icon: CheckCircle2,
     label: 'Confirmed',
   },
   CANCELLED: {
-    style: 'bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-600',
+    style: 'bg-stone-100 text-stone-700 ring-stone-200 dark:bg-white/10 dark:text-slate-300 dark:ring-white/10',
     icon: XCircle,
     label: 'Cancelled',
   },
   RESCHEDULED: {
-    style: 'bg-purple-50 text-purple-700 ring-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:ring-purple-800',
+    style: 'bg-orange-50 text-orange-700 ring-orange-200 dark:bg-orange-400/15 dark:text-orange-200 dark:ring-orange-300/20',
     icon: CalendarClock,
     label: 'Rescheduled',
   },
   CHECKED_IN: {
-    style: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:ring-emerald-800',
+    style: 'bg-primary-100 text-ink-900 ring-primary-200 dark:bg-primary-300 dark:text-ink-900 dark:ring-primary-200',
     icon: MapPinCheck,
     label: 'Checked In',
   },
   COMPLETED: {
-    style: 'bg-primary-50 text-primary-700 ring-primary-200 dark:bg-primary-900/30 dark:text-primary-400 dark:ring-primary-800',
+    style: 'bg-primary-100 text-ink-900 ring-primary-200 dark:bg-primary-300 dark:text-ink-900 dark:ring-primary-200',
     icon: Trophy,
     label: 'Completed',
   },

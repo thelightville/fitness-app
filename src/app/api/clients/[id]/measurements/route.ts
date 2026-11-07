@@ -1,3 +1,4 @@
+import { trainerCanAccessClient } from '@/lib/trainer-access';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
@@ -30,17 +31,7 @@ async function canAccessClient(session: any, clientId: string) {
   }
 
   if (session.user.role === UserRole.TRAINER) {
-    const trainer = await prisma.trainer.findUnique({
-      where: { userId: session.user.id },
-      select: { id: true },
-    });
-    if (!trainer) return false;
-
-    const sharedAppointment = await prisma.appointment.findFirst({
-      where: { clientId, trainerId: trainer.id },
-      select: { id: true },
-    });
-    return !!sharedAppointment;
+    return trainerCanAccessClient(session.user.id, clientId);
   }
 
   return false;
@@ -51,26 +42,14 @@ async function canManageClient(session: any, clientId: string) {
   if (session.user.role === UserRole.ADMIN) return true;
 
   if (session.user.role === UserRole.TRAINER) {
-    const trainer = await prisma.trainer.findUnique({
-      where: { userId: session.user.id },
-      select: { id: true },
-    });
-    if (!trainer) return false;
-
-    const sharedAppointment = await prisma.appointment.findFirst({
-      where: { clientId, trainerId: trainer.id },
-      select: { id: true },
-    });
-    return !!sharedAppointment;
+    return trainerCanAccessClient(session.user.id, clientId);
   }
 
   return false;
 }
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await auth();
   const clientId = params.id;
 
@@ -86,10 +65,8 @@ export async function GET(
   return NextResponse.json(measurements);
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await auth();
   const clientId = params.id;
 

@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { UserRole } from '@prisma/client';
+import { Prisma, UserRole } from '@prisma/client';
 import { logAudit } from '@/lib/audit';
 
 const updateSchema = z.object({
@@ -13,6 +13,8 @@ const updateSchema = z.object({
   password: z.string().min(8).optional(),
   role: z.enum([UserRole.CLIENT, UserRole.TRAINER, UserRole.ADMIN]).optional(),
   active: z.boolean().optional(),
+  trainerApproved: z.boolean().optional(),
+  trainerClientIds: z.array(z.string().min(1)).max(500).optional(),
   bio: z.string().optional(),
   specialties: z.array(z.string()).optional(),
   goals: z.string().optional(),
@@ -25,16 +27,18 @@ function requireAdmin(session: any) {
   return null;
 }
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await auth();
   const denied = requireAdmin(session);
   if (denied) return denied;
 
   const user = await prisma.user.findUnique({
     where: { id: params.id },
-    include: {
+    select: {
+      id: true, name: true, email: true, phone: true, role: true, createdAt: true,
       client: { select: { id: true, active: true, goals: true } },
-      trainer: { select: { id: true, active: true, bio: true, specialties: true } },
+      trainer: { select: { id: true, active: true, approvedAt: true, bio: true, specialties: true, clients: { select: { id: true } } } },
     },
   });
 
@@ -45,7 +49,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json(user);
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await auth();
   const denied = requireAdmin(session);
   if (denied) return denied;
@@ -56,7 +61,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: 'Invalid input', issues: parsed.error.issues }, { status: 400 });
   }
 
-  const { name, email, phone, password, role, active, bio, specialties, goals } = parsed.data;
+  const { name, email, phone, password, role, active, bio, specialties, goals, trainerApproved, trainerClientIds } = parsed.data;
 
   const existing = await prisma.user.findUnique({
     where: { id: params.id },
@@ -73,54 +78,45 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
   }
 
-  const data: any = { name, email, phone };
-  if (password) data.password = await bcrypt.hash(password, 12);
-  if (role) data.role = role;
+  if ((trainerApproved !== undefined || trainerClientIds !== undefined) &&
+      (!existing.trainer || existing.role !== UserRole.TRAINER || (role && role !== UserRole.TRAINER))) {
+    return NextResponse.json({ error: 'Trainer access can only be set on trainer accounts' }, { status: 400 });
+  }
+  const clientIds = trainerClientIds === undefined ? undefined : [...new Set(trainerClientIds)];
+  if (clientIds && await prisma.client.count({ where: { id: { in: clientIds }, user: { role: UserRole.CLIENT } } }) !== clientIds.length) {
+    return NextResponse.json({ error: 'One or more client assignments are invalid' }, { status: 400 });
+  }
 
+  const data: Prisma.UserUpdateInput = { name, email, phone, role };
+  if (password) data.password = await bcrypt.hash(password, 12);
+  if (existing.trainer) {
+    data.trainer = { update: {
+      active, bio, specialties,
+      approvedAt: active === false || trainerApproved === false ? null
+        : trainerApproved === true ? existing.trainer.approvedAt ?? new Date() : undefined,
+      ...(clientIds && { clients: { set: clientIds.map((id) => ({ id })) } }),
+    } };
+  }
+  if (existing.client) data.client = { update: { active, goals } };
   const user = await prisma.user.update({
     where: { id: params.id },
     data,
-    include: { client: true, trainer: true },
+    select: { id: true, name: true, email: true, phone: true, role: true },
   });
-
-  if (active !== undefined) {
-    if (user.client) {
-      await prisma.client.update({ where: { id: user.client.id }, data: { active } });
-    }
-    if (user.trainer) {
-      await prisma.trainer.update({ where: { id: user.trainer.id }, data: { active } });
-    }
-  }
-
-  if (user.trainer && (bio !== undefined || specialties !== undefined)) {
-    await prisma.trainer.update({
-      where: { id: user.trainer.id },
-      data: {
-        ...(bio !== undefined && { bio }),
-        ...(specialties !== undefined && { specialties }),
-      },
-    });
-  }
-
-  if (user.client && goals !== undefined) {
-    await prisma.client.update({
-      where: { id: user.client.id },
-      data: { goals },
-    });
-  }
 
   await logAudit({
     actorId: session!.user.id,
     entityType: 'user',
     entityId: user.id,
     action: 'updated',
-    metadata: { name, email, role, active },
+    metadata: { name, email, role, active, trainerApproved, trainerClientIds: clientIds },
   });
 
   return NextResponse.json(user);
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await auth();
   const denied = requireAdmin(session);
   if (denied) return denied;
@@ -141,7 +137,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
     await prisma.client.update({ where: { id: existing.client.id }, data: { active: false } });
   }
   if (existing.trainer) {
-    await prisma.trainer.update({ where: { id: existing.trainer.id }, data: { active: false } });
+    await prisma.trainer.update({ where: { id: existing.trainer.id }, data: { active: false, approvedAt: null } });
   }
 
   await prisma.user.update({ where: { id: params.id }, data: { email: `${existing.email}.inactive.${Date.now()}` } });

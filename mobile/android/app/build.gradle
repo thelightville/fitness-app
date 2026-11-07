@@ -96,6 +96,7 @@ android {
     namespace "ng.myapps.fitness"
     defaultConfig {
         applicationId "ng.myapps.fitness"
+        if (releaseSigningValue('FITNESS_ANDROID_PILOT') == 'true') applicationIdSuffix ".pilot"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode androidVersionCode

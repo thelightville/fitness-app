@@ -1,3 +1,4 @@
+import { assignedClient } from '@/lib/trainer-access';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireMobileAuth } from '@/lib/mobile-auth';
@@ -20,9 +21,9 @@ export async function GET(req: NextRequest) {
   }
 
   const clients = await prisma.client.findMany({
-    where: { active: true },
+    where: auth.user.role === 'TRAINER' ? assignedClient(auth.user.id) : { active: true },
     orderBy: { user: { name: 'asc' } },
-    include: { user: { select: { name: true, email: true } } },
+    select: { id: true, user: { select: { name: true, email: true } } },
   });
 
   return NextResponse.json(clients);

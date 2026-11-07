@@ -5,15 +5,16 @@ interface StatCardProps {
   value: string | number;
   icon: LucideIcon;
   trend?: { value: number; label: string; positive?: boolean };
-  color?: 'green' | 'blue' | 'red' | 'amber' | 'slate';
+  color?: 'green' | 'blue' | 'red' | 'amber' | 'slate' | 'flame';
 }
 
 const colorMap = {
-  green: 'bg-primary-50 text-primary-700 ring-primary-200 dark:bg-primary-900/30 dark:text-primary-400 dark:ring-primary-800',
-  blue: 'bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-800',
+  green: 'bg-primary-100 text-ink-900 ring-primary-200 dark:bg-primary-300 dark:text-ink-900 dark:ring-primary-200',
+  blue: 'bg-cyan-50 text-cyan-700 ring-cyan-200 dark:bg-cyan-400/15 dark:text-cyan-200 dark:ring-cyan-300/20',
   red: 'bg-red-50 text-red-700 ring-red-200 dark:bg-red-900/30 dark:text-red-400 dark:ring-red-800',
-  amber: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:ring-amber-800',
-  slate: 'bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-600',
+  amber: 'bg-flame-100 text-flame-600 ring-flame-300 dark:bg-flame-500/15 dark:text-flame-300 dark:ring-flame-300/20',
+  flame: 'bg-flame-100 text-flame-600 ring-flame-300 dark:bg-flame-500/15 dark:text-flame-300 dark:ring-flame-300/20',
+  slate: 'bg-ink-900 text-primary-200 ring-ink-700 dark:bg-white/10 dark:text-primary-200 dark:ring-white/10',
 };
 
 export function StatCard({ label, value, icon: Icon, trend, color = 'slate' }: StatCardProps) {

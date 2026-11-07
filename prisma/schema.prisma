@@ -39,6 +39,25 @@ enum WorkoutType {
   CUSTOM
 }
 
+enum ExerciseCategory {
+  STRENGTH
+  CARDIO
+  MOBILITY
+  CONDITIONING
+  REHABILITATION
+  ASSESSMENT
+  CUSTOM
+}
+
+enum ExerciseMeasurementType {
+  REPS_LOAD
+  BODYWEIGHT_REPS
+  TIME
+  DISTANCE_TIME
+  HOLD_TIME
+  CUSTOM
+}
+
 enum ReminderChannel {
   EMAIL
   SMS
@@ -87,6 +106,7 @@ model MobileSession {
   accessExpiresAt  DateTime  @map("access_expires_at")
   refreshExpiresAt DateTime  @map("refresh_expires_at")
   revokedAt        DateTime? @map("revoked_at")
+  trainerApprovedAt DateTime? @map("trainer_approved_at")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
@@ -152,6 +172,7 @@ model Client {
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   appointments Appointment[]
   measurements Measurement[]
+  trainers Trainer[] @relation("TrainerClientAssignments")
 
   @@map("clients")
 }
@@ -161,15 +182,40 @@ model Trainer {
   userId     String   @unique @map("user_id")
   bio        String?
   specialties String[]
+  approvedAt DateTime? @map("approved_at")
   active     Boolean  @default(true)
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   availability  TrainerAvailability[]
+  clients       Client[] @relation("TrainerClientAssignments")
   appointments  Appointment[]
+  createdExercises Exercise[]           @relation("TrainerCreatedExercises")
 
   @@map("trainers")
+}
+
+model Exercise {
+  id                    String                  @id @default(cuid())
+  name                  String                  @unique
+  category              ExerciseCategory        @default(STRENGTH)
+  primaryMuscleGroup    String?                 @map("primary_muscle_group")
+  secondaryMuscleGroups String[]                @default([]) @map("secondary_muscle_groups")
+  equipment             String?
+  measurementType       ExerciseMeasurementType @default(REPS_LOAD) @map("measurement_type")
+  instructions          String?
+  isSystem              Boolean                 @default(false) @map("is_system")
+  createdByTrainerId    String?                 @map("created_by_trainer_id")
+  createdAt             DateTime                @default(now()) @map("created_at")
+  updatedAt             DateTime                @updatedAt @map("updated_at")
+
+  createdByTrainer Trainer?          @relation("TrainerCreatedExercises", fields: [createdByTrainerId], references: [id], onDelete: SetNull)
+  workoutExercises WorkoutExercise[]
+
+  @@index([category])
+  @@index([primaryMuscleGroup])
+  @@map("exercises")
 }
 
 model GymLocation {
@@ -260,8 +306,50 @@ model WorkoutLog {
 
   appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   loggedBy    User        @relation(fields: [loggedById], references: [id], onDelete: Cascade)
+  workoutExercises WorkoutExercise[]
 
   @@map("workout_logs")
+}
+
+model WorkoutExercise {
+  id             String   @id @default(cuid())
+  workoutLogId   String   @map("workout_log_id")
+  exerciseId     String   @map("exercise_id")
+  orderIndex     Int      @default(0) @map("order_index")
+  blockName      String?  @map("block_name")
+  targetNotes    String?  @map("target_notes")
+  coachNotes     String?  @map("coach_notes")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  workoutLog WorkoutLog   @relation(fields: [workoutLogId], references: [id], onDelete: Cascade)
+  exercise   Exercise     @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  sets       WorkoutSet[]
+
+  @@index([workoutLogId, orderIndex])
+  @@index([exerciseId])
+  @@map("workout_exercises")
+}
+
+model WorkoutSet {
+  id                String   @id @default(cuid())
+  workoutExerciseId String   @map("workout_exercise_id")
+  setIndex          Int      @map("set_index")
+  reps              Int?
+  weightKg          Float?   @map("weight_kg")
+  durationSeconds   Int?     @map("duration_seconds")
+  distanceMeters    Float?   @map("distance_meters")
+  restSeconds       Int?     @map("rest_seconds")
+  rpe               Int?
+  completed         Boolean  @default(true)
+  notes             String?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  workoutExercise WorkoutExercise @relation(fields: [workoutExerciseId], references: [id], onDelete: Cascade)
+
+  @@index([workoutExerciseId, setIndex])
+  @@map("workout_sets")
 }
 
 model Measurement {

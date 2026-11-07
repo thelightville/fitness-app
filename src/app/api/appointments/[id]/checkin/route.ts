@@ -1,3 +1,4 @@
+import { trainerCanAccessClient } from '@/lib/trainer-access';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
@@ -13,7 +14,8 @@ const checkInSchema = z.object({
   reason: z.string().optional(),
 });
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -37,7 +39,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!appointment) return NextResponse.json({ error: 'Appointment not found' }, { status: 404 });
 
   const isClient = session.user.role === UserRole.CLIENT && appointment.client.user.id === session.user.id;
-  const isTrainerOrAdmin = session.user.role === UserRole.TRAINER || session.user.role === UserRole.ADMIN;
+  const isTrainerOrAdmin = session.user.role === UserRole.ADMIN
+    || (session.user.role === UserRole.TRAINER && appointment.trainer.user.id === session.user.id
+      && await trainerCanAccessClient(session.user.id, appointment.clientId));
 
   if (!isClient && !isTrainerOrAdmin) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
