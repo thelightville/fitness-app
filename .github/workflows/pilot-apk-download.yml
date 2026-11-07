@@ -1,0 +1,72 @@
+name: Downloadable Fitness pilot APK
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  android-download:
+    if: github.ref == 'refs/heads/main' && github.repository == 'thelightville/fitness-app'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ee66ab240894920c1746ec3144046cb4fd05345d
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.4
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - name: Test the Android client and install the pinned SDK components
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run typecheck
+          npm test -- --runInBand
+          npm audit --omit=dev --audit-level=high
+          sdkmanager=$(find "${ANDROID_HOME:?Android SDK root is required}/cmdline-tools" -type f -name sdkmanager -print -quit)
+          test -n "$sdkmanager"
+          "$sdkmanager" 'platforms;android-37.0' 'build-tools;37.0.0' 'ndk;27.1.12297006' 'cmake;3.22.1'
+      - name: Build and verify an isolated, test-signed pilot APK
+        working-directory: mobile/android
+        env:
+          FITNESS_ANDROID_PILOT: 'true'
+          FITNESS_UPLOAD_KEY_ALIAS: fitness-pilot
+          FITNESS_UPLOAD_STORE_PASSWORD: fixture-only
+          FITNESS_UPLOAD_KEY_PASSWORD: fixture-only
+        run: |
+          export JAVA_HOME="${JAVA_HOME_17_X64:?Java 17 is required}"
+          export PATH="$JAVA_HOME/bin:$PATH"
+          export FITNESS_UPLOAD_STORE_FILE="$RUNNER_TEMP/fitness-pilot.p12"
+          keytool -genkeypair -storetype PKCS12 -keystore "$FITNESS_UPLOAD_STORE_FILE" \
+            -alias "$FITNESS_UPLOAD_KEY_ALIAS" -storepass "$FITNESS_UPLOAD_STORE_PASSWORD" \
+            -keypass "$FITNESS_UPLOAD_KEY_PASSWORD" -keyalg RSA -keysize 2048 \
+            -validity 30 -dname 'CN=Fitness disposable pilot fixture'
+          ./gradlew --no-daemon --max-workers=2 -PreactNativeArchitectures=arm64-v8a,x86_64 :app:assembleRelease
+          cd app/build/outputs/apk/release
+          "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --print-certs app-release.apk
+          "$ANDROID_HOME/build-tools/37.0.0/aapt" dump badging app-release.apk | grep "package: name='ng.myapps.fitness.pilot'"
+          sha256sum app-release.apk | tee -a "$GITHUB_STEP_SUMMARY"
+          git rev-parse HEAD | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Attach the verified package to the private draft
+        working-directory: mobile/android/app/build/outputs/apk/release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SOURCE: ee66ab240894920c1746ec3144046cb4fd05345d
+          PILOT_TAG: fitness-pilot-ee66ab2-device
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE"
+          gh release view "$PILOT_TAG" --repo "$GITHUB_REPOSITORY" \
+            --json isDraft,targetCommitish,tagName \
+            --jq 'select(.isDraft and .targetCommitish == env.EXPECTED_SOURCE and .tagName == env.PILOT_TAG) | .tagName' \
+            | grep -Fx "$PILOT_TAG"
+          mv app-release.apk fitness-pt-tracker-pilot-ee66ab2.apk
+          sha256sum fitness-pt-tracker-pilot-ee66ab2.apk > SHA256SUMS
+          printf '%s\n' "$EXPECTED_SOURCE" > SOURCE_COMMIT
+          gh release upload "$PILOT_TAG" fitness-pt-tracker-pilot-ee66ab2.apk SHA256SUMS SOURCE_COMMIT \
+            --repo "$GITHUB_REPOSITORY"
