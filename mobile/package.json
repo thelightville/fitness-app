@@ -40,10 +40,11 @@
     "jest": "^29.6.3",
     "prettier": "2.8.8",
     "react-test-renderer": "19.2.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "image-size": "file:tooling/metro-image-size"
   },
   "overrides": {
-    "image-size": "2.1.0",
+    "image-size": "$image-size",
     "body-parser": "2.4.0",
     "compression": "1.8.2",
     "joi": "17.13.9",
