@@ -83,7 +83,7 @@ test('pilot role boundaries and booking lifecycle through the built server', asy
     fixtureUser('admin', 'ADMIN'),
     fixtureUser('client', 'CLIENT', { client: { create: {} } }),
     fixtureUser('other', 'CLIENT', { client: { create: {} } }),
-    fixtureUser('approved', 'TRAINER', { trainer: { create: { approved: true, specialties: [] } } }),
+    fixtureUser('approved', 'TRAINER', { trainer: { create: { approvedAt: new Date(), specialties: [] } } }),
     fixtureUser('legacy', 'TRAINER', { trainer: { create: { specialties: [] } } }),
   ]);
   const gym = await db.gymLocation.create({ data: { name: `Fixture studio ${runId}`, latitude: 43.65, longitude: -79.38 } });
@@ -145,4 +145,8 @@ test('pilot role boundaries and booking lifecycle through the built server', asy
   await request('/api/clients', { auth: trainerWeb, expected: 401 });
   await request('/api/mobile/clients', { auth: trainerMobile, expected: 401 });
   await request('/api/mobile/auth/refresh', { method: 'POST', body: { refreshToken: trainerMobile.refreshToken }, expected: 401 });
+  await request(manageTrainer, { method: 'PATCH', auth: adminWeb, body: { trainerApproved: true, trainerClientIds: [client.client.id] } });
+  await request('/api/clients', { auth: trainerWeb, expected: 401 });
+  await request('/api/mobile/clients', { auth: trainerMobile, expected: 401 });
+  assert.deepEqual(ids(await request('/api/mobile/clients', { auth: await mobileLogin(approved.email) })), [client.client.id]);
 });

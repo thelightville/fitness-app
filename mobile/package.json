@@ -43,7 +43,14 @@
     "typescript": "^6.0.3"
   },
   "overrides": {
-    "image-size": "^1.2.1"
+    "image-size": "2.1.0",
+    "body-parser": "2.4.0",
+    "compression": "1.8.2",
+    "joi": "17.13.9",
+    "js-yaml@^4": "4.3.2",
+    "launch-editor": "2.14.2",
+    "qs": "6.17.1",
+    "shell-quote": "1.12.0"
   },
   "engines": {
     "node": ">= 22.11.0"

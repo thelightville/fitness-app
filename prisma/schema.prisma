@@ -106,6 +106,7 @@ model MobileSession {
   accessExpiresAt  DateTime  @map("access_expires_at")
   refreshExpiresAt DateTime  @map("refresh_expires_at")
   revokedAt        DateTime? @map("revoked_at")
+  trainerApprovedAt DateTime? @map("trainer_approved_at")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
@@ -181,7 +182,7 @@ model Trainer {
   userId     String   @unique @map("user_id")
   bio        String?
   specialties String[]
-  approved   Boolean  @default(false)
+  approvedAt DateTime? @map("approved_at")
   active     Boolean  @default(true)
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")

@@ -32,7 +32,7 @@ export async function GET() {
     select: {
       id: true, name: true, email: true, phone: true, role: true, createdAt: true,
       client: { select: { id: true, active: true } },
-      trainer: { select: { id: true, active: true, approved: true, bio: true, specialties: true, clients: { select: { id: true } } } },
+      trainer: { select: { id: true, active: true, approvedAt: true, bio: true, specialties: true, clients: { select: { id: true } } } },
     },
   });
 
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       password: hashedPassword,
       role,
       ...(role === UserRole.CLIENT && { client: { create: { active } } }),
-      ...(role === UserRole.TRAINER && { trainer: { create: { active, approved: true, specialties: [] } } }),
+      ...(role === UserRole.TRAINER && { trainer: { create: { active, approvedAt: active ? new Date() : null, specialties: [] } } }),
     },
     select: { id: true, name: true, email: true, phone: true, role: true },
   });

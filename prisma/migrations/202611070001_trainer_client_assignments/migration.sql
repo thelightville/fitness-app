@@ -1,4 +1,5 @@
-ALTER TABLE "trainers" ADD COLUMN "approved" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "trainers" ADD COLUMN "approved_at" TIMESTAMP(3);
+ALTER TABLE "mobile_sessions" ADD COLUMN "trainer_approved_at" TIMESTAMP(3);
 
 CREATE TABLE "_TrainerClientAssignments" (
     "A" TEXT NOT NULL,

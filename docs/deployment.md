@@ -75,8 +75,8 @@ This builds the app, starts PostgreSQL, runs migrations, and registers metadata 
 | App container | Healthy on `0.0.0.0:8054` |
 | Database | Healthy, migrations applied |
 | Public URL | https://fitness.myapps.com.ng |
-| DNS CNAME | `fitness.myapps.com.ng` â†’ Cloudflare tunnel |
-| Tunnel route | `fitness.myapps.com.ng` â†’ `http://172.16.16.117:8054` |
+| DNS CNAME | `fitness.myapps.com.ng` Ã¢â€ â€™ Cloudflare tunnel |
+| Tunnel route | `fitness.myapps.com.ng` Ã¢â€ â€™ `http://172.16.16.117:8054` |
 | Reminder cron | Every 5 minutes |
 | Hosting meta | `/opt/docker-sites/fitness.myapps.com.ng/.hosting-meta.json` |
 
@@ -108,7 +108,7 @@ revision=$(git rev-parse HEAD)
 docker build -f Dockerfile.pilot --build-arg FITNESS_BUILD_REVISION="$revision" -t "fitness-pilot:$revision" .
 ```
 
-The pilot workflow runs the production web image against PostgreSQL using synthetic accounts. It also builds a test-signed Android APK with package ID `ng.myapps.fitness.pilot` and records its commit and checksum. The APK can be installed alongside the Play app. It is separate from Play distribution, uses the app's existing API origin, and must only be used for the pilot after the corresponding backend is available. Play builds require the existing upload key and a separately verified version code.
+The pilot workflow runs the production web image against PostgreSQL using synthetic accounts. It also builds a test-signed Android APK with package ID `ng.myapps.fitness.pilot` and reports its commit and checksum. Keep the locally built APK and checksum together for device testing. The APK can be installed alongside the Play app. It is separate from Play distribution, uses the app's existing API origin, and must only be used for the pilot after the corresponding backend is available. Play builds require the existing upload key and a separately verified version code.
 
 Before activating an upgraded deployment, confirm the production migration ledger, take a backup and rehearse restoring it on a disposable database. Retain the prior image and configuration. Run `npm run db:deploy` from the reviewed revision with the deployment database connection. The migration preserves existing records and leaves all previously created trainers unapproved. In **Manage Trainers**, explicitly approve each verified pilot trainer and select their assigned clients. Existing appointment history does not create an assignment. Verify the active demo accounts and remove or rotate any documented defaults before inviting participants.
 

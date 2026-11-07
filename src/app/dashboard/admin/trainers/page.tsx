@@ -14,7 +14,7 @@ interface User {
   phone: string | null;
   role: UserRole;
   createdAt: string;
-  trainer: { id: string; active: boolean; approved: boolean; clients: { id: string }[]; bio: string | null; specialties: string[] } | null;
+  trainer: { id: string; active: boolean; approvedAt: string | null; clients: { id: string }[]; bio: string | null; specialties: string[] } | null;
 }
 
 interface ClientOption { name: string | null; email: string; client: { id: string; active: boolean } | null; role: UserRole }
@@ -73,7 +73,7 @@ export default function AdminTrainersPage() {
       bio: user.trainer?.bio || '',
       specialties: user.trainer?.specialties?.join(', ') || '',
       active: user.trainer?.active ?? true,
-      trainerApproved: user.trainer?.approved ?? false,
+      trainerApproved: !!user.trainer?.approvedAt,
       trainerClientIds: user.trainer?.clients.map(({ id }) => id) ?? [],
     });
     setShowForm(true);
@@ -312,7 +312,7 @@ export default function AdminTrainersPage() {
                     <span
                       className={`badge ${user.trainer?.active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}
                     >
-                      {!user.trainer?.approved ? 'Needs approval' : user.trainer.active ? 'Active' : 'Inactive'}
+                      {!user.trainer?.approvedAt ? 'Needs approval' : user.trainer.active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="table-cell dark:text-slate-300">{new Date(user.createdAt).toLocaleDateString()}</td>

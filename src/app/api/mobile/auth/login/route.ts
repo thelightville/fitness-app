@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
   const user = await prisma.user.findUnique({
     where: { email: parsed.data.email },
-    include: { trainer: { select: { active: true, approved: true } } },
+    include: { trainer: { select: { active: true, approvedAt: true } } },
   });
   if (!user?.password) {
     await logAudit({ entityType: 'mobile_auth', entityId: parsed.data.email, action: 'failed_login', metadata: { reason: 'unknown_user' } });
@@ -34,11 +34,11 @@ export async function POST(req: NextRequest) {
   }
 
   const valid = await bcrypt.compare(parsed.data.password, user.password);
-  if (!valid || (user.role === UserRole.TRAINER && (!user.trainer?.active || !user.trainer.approved))) {
+  if (!valid || (user.role === UserRole.TRAINER && (!user.trainer?.active || !user.trainer.approvedAt))) {
     await logAudit({ actorId: user.id, entityType: 'mobile_auth', entityId: user.id, action: 'failed_login', metadata: { reason: 'bad_password' } });
     return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
   }
 
-  const session = await issueMobileSession({ id: user.id, email: user.email, name: user.name, role: user.role });
+  const session = await issueMobileSession({ id: user.id, email: user.email, name: user.name, role: user.role }, user.trainer?.approvedAt ?? null);
   return NextResponse.json(session);
 }

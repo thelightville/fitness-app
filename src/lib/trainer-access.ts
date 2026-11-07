@@ -2,13 +2,13 @@ import { Prisma, UserRole } from '@prisma/client';
 import { prisma } from './db';
 
 export const eligibleTrainer: Prisma.TrainerWhereInput = {
-  approved: true,
+  approvedAt: { not: null },
   active: true,
   user: { role: UserRole.TRAINER },
 };
 
 export function assignedClient(trainerUserId: string): Prisma.ClientWhereInput {
-  return { active: true, trainers: { some: { ...eligibleTrainer, userId: trainerUserId } } };
+  return { active: true, user: { role: UserRole.CLIENT }, trainers: { some: { ...eligibleTrainer, userId: trainerUserId } } };
 }
 
 export async function trainerCanAccessClient(trainerUserId: string, clientId: string) {

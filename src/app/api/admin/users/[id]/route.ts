@@ -38,7 +38,7 @@ export async function GET(_req: NextRequest, props: { params: Promise<{ id: stri
     select: {
       id: true, name: true, email: true, phone: true, role: true, createdAt: true,
       client: { select: { id: true, active: true, goals: true } },
-      trainer: { select: { id: true, active: true, approved: true, bio: true, specialties: true, clients: { select: { id: true } } } },
+      trainer: { select: { id: true, active: true, approvedAt: true, bio: true, specialties: true, clients: { select: { id: true } } } },
     },
   });
 
@@ -91,7 +91,9 @@ export async function PATCH(req: NextRequest, props: { params: Promise<{ id: str
   if (password) data.password = await bcrypt.hash(password, 12);
   if (existing.trainer) {
     data.trainer = { update: {
-      active, bio, specialties, approved: trainerApproved,
+      active, bio, specialties,
+      approvedAt: active === false || trainerApproved === false ? null
+        : trainerApproved === true ? existing.trainer.approvedAt ?? new Date() : undefined,
       ...(clientIds && { clients: { set: clientIds.map((id) => ({ id })) } }),
     } };
   }
@@ -135,7 +137,7 @@ export async function DELETE(_req: NextRequest, props: { params: Promise<{ id: s
     await prisma.client.update({ where: { id: existing.client.id }, data: { active: false } });
   }
   if (existing.trainer) {
-    await prisma.trainer.update({ where: { id: existing.trainer.id }, data: { active: false } });
+    await prisma.trainer.update({ where: { id: existing.trainer.id }, data: { active: false, approvedAt: null } });
   }
 
   await prisma.user.update({ where: { id: params.id }, data: { email: `${existing.email}.inactive.${Date.now()}` } });

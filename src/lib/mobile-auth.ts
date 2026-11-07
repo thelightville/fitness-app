@@ -13,10 +13,11 @@ export interface MobileUser {
   role: UserRole;
 }
 
-type MobileSessionUser = MobileUser & { trainer: { active: boolean; approved: boolean } | null };
+type MobileSessionUser = MobileUser & { trainer: { active: boolean; approvedAt: Date | null } | null };
 
-function mobileAccountAllowed(user: MobileSessionUser) {
-  return user.role !== UserRole.TRAINER || !!(user.trainer?.active && user.trainer.approved);
+function mobileAccountAllowed(user: MobileSessionUser, approvedAt: Date | null) {
+  return user.role !== UserRole.TRAINER || !!(user.trainer?.active && approvedAt &&
+    user.trainer.approvedAt?.getTime() === approvedAt.getTime());
 }
 
 export interface MobileAuthContext {
@@ -39,7 +40,7 @@ function mobileUser(user: MobileUser): MobileUser {
 }
 
 /** Issues a short access session and longer refresh session for a mobile user. */
-export async function issueMobileSession(user: MobileUser) {
+export async function issueMobileSession(user: MobileUser, trainerApprovedAt: Date | null) {
   const accessToken = createSessionCredential();
   const refreshToken = createSessionCredential();
   const accessExpiresAt = new Date(Date.now() + ACCESS_SESSION_TTL_MS);
@@ -51,6 +52,7 @@ export async function issueMobileSession(user: MobileUser) {
       accessTokenHash: hashCredential(accessToken),
       refreshTokenHash: hashCredential(refreshToken),
       accessExpiresAt,
+      trainerApprovedAt,
       refreshExpiresAt,
     },
   });
@@ -72,10 +74,10 @@ export async function requireMobileAuth(req: NextRequest): Promise<MobileAuthCon
 
   const session = await prisma.mobileSession.findUnique({
     where: { accessTokenHash: hashCredential(match[1]) },
-    include: { user: { select: { id: true, email: true, name: true, role: true, trainer: { select: { active: true, approved: true } } } } },
+    include: { user: { select: { id: true, email: true, name: true, role: true, trainer: { select: { active: true, approvedAt: true } } } } },
   });
 
-  if (!session || session.revokedAt || session.accessExpiresAt <= new Date() || !mobileAccountAllowed(session.user)) return null;
+  if (!session || session.revokedAt || session.accessExpiresAt <= new Date() || !mobileAccountAllowed(session.user, session.trainerApprovedAt)) return null;
   return { sessionId: session.id, user: mobileUser(session.user) };
 }
 
@@ -83,10 +85,10 @@ export async function requireMobileAuth(req: NextRequest): Promise<MobileAuthCon
 export async function refreshMobileSession(refreshToken: string) {
   const existing = await prisma.mobileSession.findUnique({
     where: { refreshTokenHash: hashCredential(refreshToken) },
-    include: { user: { select: { id: true, email: true, name: true, role: true, trainer: { select: { active: true, approved: true } } } } },
+    include: { user: { select: { id: true, email: true, name: true, role: true, trainer: { select: { active: true, approvedAt: true } } } } },
   });
 
-  if (!existing || existing.revokedAt || existing.refreshExpiresAt <= new Date() || !mobileAccountAllowed(existing.user)) return null;
+  if (!existing || existing.revokedAt || existing.refreshExpiresAt <= new Date() || !mobileAccountAllowed(existing.user, existing.trainerApprovedAt)) return null;
 
   const revoked = await prisma.mobileSession.updateMany({
     where: { id: existing.id, revokedAt: null },
@@ -94,7 +96,7 @@ export async function refreshMobileSession(refreshToken: string) {
   });
   if (revoked.count !== 1) return null;
 
-  return issueMobileSession(existing.user);
+  return issueMobileSession(existing.user, existing.trainerApprovedAt);
 }
 
 /** Revokes the access session currently used by the mobile app. */
