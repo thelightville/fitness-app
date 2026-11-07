@@ -73,7 +73,9 @@ jobs:
           npm run typecheck
           npm test -- --runInBand
           npm audit --omit=dev --audit-level=high
-          sdkmanager 'platforms;android-37' 'build-tools;37.0.0' 'ndk;27.1.12297006' 'cmake;3.22.1'
+          sdkmanager=$(find "${ANDROID_HOME:?Android SDK root is required}/cmdline-tools" -type f -name sdkmanager -print -quit)
+          test -n "$sdkmanager"
+          "$sdkmanager" 'platforms;android-37.0' 'build-tools;37.0.0' 'ndk;27.1.12297006' 'cmake;3.22.1'
       - name: Build and verify an isolated, test-signed pilot APK
         working-directory: mobile/android
         env:

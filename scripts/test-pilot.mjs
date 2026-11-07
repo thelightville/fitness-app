@@ -31,9 +31,11 @@ async function request(path, { method = 'GET', body, auth, expected = 200 } = {}
 async function webLogin(email) {
   const csrfResponse = await fetch(new URL('/api/auth/csrf', origin));
   const { csrfToken } = await csrfResponse.json();
-  const csrfCookie = csrfResponse.headers.getSetCookie().map((cookie) => cookie.split(';')[0]).join('; ');
+  const csrfCookie = csrfResponse.headers.getSetCookie().map((cookie) => cookie.split(';')[0])
+    .find((cookie) => cookie.includes('csrf-token=') && decodeURIComponent(cookie).includes(`${csrfToken}|`));
+  assert.ok(csrfCookie, 'Auth.js returned no cookie matching the CSRF token');
   const response = await fetch(new URL('/api/auth/callback/credentials', origin), {
-    method: 'POST', redirect: 'manual', headers: { Cookie: csrfCookie },
+    method: 'POST', redirect: 'manual', headers: { Cookie: csrfCookie, 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ email, password, csrfToken, callbackUrl: origin.href }),
   });
   const cookie = response.headers.getSetCookie().find((value) => /authjs\.session-token=/.test(value));
@@ -72,6 +74,7 @@ test('pilot role boundaries and booking lifecycle through the built server', asy
   const registerPage = await request('/register');
   assert.match(registerPage, /Create your account/);
   assert.doesNotMatch(registerPage, /<option[^>]*value="TRAINER"/);
+  await request('/dashboard', { expected: 307 });
   await request('/api/clients', { expected: 401 });
   await request('/api/mobile/clients', { expected: 401 });
 
@@ -90,6 +93,7 @@ test('pilot role boundaries and booking lifecycle through the built server', asy
   const adminWeb = await webLogin(admin.email);
   const trainerWeb = await webLogin(approved.email);
   const clientWeb = await webLogin(client.email);
+  await request('/dashboard/admin/trainers', { auth: clientWeb, expected: 307 });
   const trainerMobile = await mobileLogin(approved.email);
   await mobileLogin(legacy.email, 401);
   await assert.rejects(webLogin(legacy.email), /without a session cookie/);

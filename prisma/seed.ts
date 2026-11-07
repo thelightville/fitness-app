@@ -4,9 +4,15 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminPassword = await bcrypt.hash('Thelightville123.', 12);
-  const clientPassword = await bcrypt.hash('ClientPass123!', 12);
-  const trainerPassword = await bcrypt.hash('TrainerPass123!', 12);
+  const database = new URL(process.env.DATABASE_URL ?? '');
+  if (process.env.NODE_ENV === 'production' || !['localhost', '127.0.0.1', '[::1]'].includes(database.hostname)) {
+    throw new Error('Fitness demo seeding requires a local development database.');
+  }
+  const seedPasswords = [process.env.FITNESS_SEED_ADMIN_PASSWORD, process.env.FITNESS_SEED_CLIENT_PASSWORD, process.env.FITNESS_SEED_TRAINER_PASSWORD];
+  if (seedPasswords.some((password) => !password || password.length < 16) || new Set(seedPasswords).size !== 3) {
+    throw new Error('Set three distinct FITNESS_SEED_*_PASSWORD values of at least 16 characters.');
+  }
+  const [adminPassword, clientPassword, trainerPassword] = await Promise.all(seedPasswords.map((password) => bcrypt.hash(password!, 12)));
 
   // Admin user
   const admin = await prisma.user.upsert({
@@ -35,9 +41,10 @@ async function main() {
 
   const trainer = await prisma.trainer.upsert({
     where: { userId: trainerUser.id },
-    update: {},
+    update: { approvedAt: new Date() },
     create: {
       userId: trainerUser.id,
+      approvedAt: new Date(),
       bio: 'Certified personal trainer with 5 years experience.',
       specialties: ['Strength', 'HIIT', 'Weight Loss'],
     },
@@ -81,6 +88,11 @@ async function main() {
   });
 
   // Gym location
+  await prisma.trainer.update({
+    where: { id: trainer.id },
+    data: { clients: { connect: { id: client.id } } },
+  });
+
   const gym = await prisma.gymLocation.upsert({
     where: { id: 'seed-gym-main' },
     update: {},

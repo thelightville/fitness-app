@@ -14,15 +14,16 @@ cp .env.example .env
 # Update DATABASE_URL and SMTP_* values
 npm install
 npx prisma migrate dev
+# Optional local fixtures. Set three unique FITNESS_SEED_*_PASSWORD values first.
 npm run db:seed
 npm run dev
 ```
 
 Open http://localhost:3000 and log in with seed credentials:
 
-- Admin: `admin@fitness.myapps.com.ng` / `AdminPass123!`
-- Trainer: `trainer@fitness.myapps.com.ng` / `TrainerPass123!`
-- Client: `client@fitness.myapps.com.ng` / `ClientPass123!`
+- Admin: `admin@fitness.myapps.com.ng` / `FITNESS_SEED_ADMIN_PASSWORD`
+- Trainer: `trainer@fitness.myapps.com.ng` / `FITNESS_SEED_TRAINER_PASSWORD`
+- Client: `client@fitness.myapps.com.ng` / `FITNESS_SEED_CLIENT_PASSWORD`
 
 ## Docker Production
 
@@ -75,8 +76,8 @@ This builds the app, starts PostgreSQL, runs migrations, and registers metadata 
 | App container | Healthy on `0.0.0.0:8054` |
 | Database | Healthy, migrations applied |
 | Public URL | https://fitness.myapps.com.ng |
-| DNS CNAME | `fitness.myapps.com.ng` Ã¢â€ â€™ Cloudflare tunnel |
-| Tunnel route | `fitness.myapps.com.ng` Ã¢â€ â€™ `http://172.16.16.117:8054` |
+| DNS CNAME | `fitness.myapps.com.ng` ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ Cloudflare tunnel |
+| Tunnel route | `fitness.myapps.com.ng` ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ `http://172.16.16.117:8054` |
 | Reminder cron | Every 5 minutes |
 | Hosting meta | `/opt/docker-sites/fitness.myapps.com.ng/.hosting-meta.json` |
 

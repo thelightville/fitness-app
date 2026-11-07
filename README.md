@@ -41,6 +41,7 @@ Fitness PT Tracker helps personal trainers and clients schedule, confirm, attend
 cp .env.example .env
 npm install
 npx prisma migrate dev
+# Optional local fixtures. Set three unique FITNESS_SEED_*_PASSWORD values first.
 npm run db:seed
 npm run dev
 ```
@@ -49,9 +50,9 @@ Seed accounts:
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | `admin@fitness.myapps.com.ng` | `Thelightville123.` |
-| Trainer | `trainer@fitness.myapps.com.ng` | `TrainerPass123!` |
-| Client | `client@fitness.myapps.com.ng` | `ClientPass123!` |
+| Admin | `admin@fitness.myapps.com.ng` | `FITNESS_SEED_ADMIN_PASSWORD` |
+| Trainer | `trainer@fitness.myapps.com.ng` | `FITNESS_SEED_TRAINER_PASSWORD` |
+| Client | `client@fitness.myapps.com.ng` | `FITNESS_SEED_CLIENT_PASSWORD` |
 
 ### Admin access
 
