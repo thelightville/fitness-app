@@ -23,8 +23,31 @@ import {
   MessageSquare,
   CheckCircle2,
   ArrowLeft,
+  Plus,
+  Trash2,
+  Pencil,
+  Save,
 } from 'lucide-react';
 import Link from 'next/link';
+
+interface ExerciseSummary {
+  id: string;
+  name: string;
+  category: string;
+  primaryMuscleGroup: string | null;
+  equipment: string | null;
+  measurementType: string;
+}
+
+interface ExerciseRowForm {
+  exerciseId: string;
+  name: string;
+  sets: number;
+  reps: number;
+  weightKg: number;
+  rpe: number;
+  coachNotes: string;
+}
 
 interface AppointmentDetail {
   id: string;
@@ -49,6 +72,24 @@ interface AppointmentDetail {
     notes: string | null;
     clientFeedback: string | null;
     exercises: { name: string; sets?: number; reps?: number; weight?: number }[];
+    workoutExercises: {
+      id: string;
+      blockName: string | null;
+      coachNotes: string | null;
+      exercise: ExerciseSummary;
+      sets: {
+        id: string;
+        setIndex: number;
+        reps: number | null;
+        weightKg: number | null;
+        durationSeconds: number | null;
+        distanceMeters: number | null;
+        restSeconds: number | null;
+        rpe: number | null;
+        completed: boolean;
+        notes: string | null;
+      }[];
+    }[];
   } | null;
   checkIns: {
     latitude: number;
@@ -65,8 +106,15 @@ export default function AppointmentDetailPage() {
   const { data: session } = useSession();
   const [appointment, setAppointment] = useState<AppointmentDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [checkInLoading, setCheckInLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [editingSchedule, setEditingSchedule] = useState(false);
+  const [scheduleForm, setScheduleForm] = useState({ date: '', time: '', duration: 60 });
+  const [exerciseLibrary, setExerciseLibrary] = useState<ExerciseSummary[]>([]);
+  const [exerciseRows, setExerciseRows] = useState<ExerciseRowForm[]>([
+    { exerciseId: '', name: '', sets: 3, reps: 10, weightKg: 0, rpe: 7, coachNotes: '' },
+  ]);
   const [workoutForm, setWorkoutForm] = useState<{
     workoutType: WorkoutType;
     durationMinutes: number;
@@ -91,12 +139,61 @@ export default function AppointmentDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  useEffect(() => {
+    if (isTrainer || isAdmin) {
+      fetch('/api/exercises')
+        .then((res) => res.json())
+        .then(setExerciseLibrary)
+        .catch(() => setExerciseLibrary([]));
+    }
+  }, [isAdmin, isTrainer]);
+
+  function isUsableAppointment(value: unknown): value is AppointmentDetail {
+    if (!value || typeof value !== 'object') return false;
+    const item = value as AppointmentDetail;
+    return typeof item.id === 'string' && typeof item.startsAt === 'string' && typeof item.endsAt === 'string'
+      && Number.isFinite(Date.parse(item.startsAt)) && Number.isFinite(Date.parse(item.endsAt))
+      && Date.parse(item.endsAt) > Date.parse(item.startsAt)
+      && typeof item.client?.user?.email === 'string' && typeof item.trainer?.user?.email === 'string'
+      && typeof item.gymLocation?.name === 'string' && Array.isArray(item.checkIns)
+      && item.checkIns.every((entry) => typeof entry.checkedInAt === 'string' && Number.isFinite(Date.parse(entry.checkedInAt)))
+      && (!item.workoutLog || (Array.isArray(item.workoutLog.workoutExercises)
+        && item.workoutLog.workoutExercises.every((entry) => typeof entry.exercise?.name === 'string' && Array.isArray(entry.sets))));
+  }
+
   async function fetchAppointment() {
     setLoading(true);
-    const res = await fetch(`/api/appointments/${id}`);
-    const data = await res.json();
-    setAppointment(data);
-    setLoading(false);
+    setLoadError('');
+    setAppointment(null);
+    let failureMessage = 'Could not load this appointment. Please try again.';
+    try {
+      const res = await fetch(`/api/appointments/${id}`);
+      if (!res.ok) {
+        failureMessage = res.status === 401 ? 'Please sign in again to view this appointment.'
+          : res.status === 403 ? 'You do not have access to this appointment.'
+          : res.status === 404 ? 'Appointment not found.' : failureMessage;
+        throw new Error(failureMessage);
+      }
+      const data: unknown = await res.json();
+      if (!isUsableAppointment(data)) throw new Error(failureMessage);
+      setScheduleFormFromAppointment(data);
+      setAppointment(data);
+    } catch {
+      setLoadError(failureMessage);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  /** Hydrates the edit form from the appointment's current schedule. */
+  function setScheduleFormFromAppointment(nextAppointment: AppointmentDetail) {
+    const startsAt = parseISO(nextAppointment.startsAt);
+    const endsAt = parseISO(nextAppointment.endsAt);
+    setScheduleForm({
+      date: format(startsAt, 'yyyy-MM-dd'),
+      time: format(startsAt, 'HH:mm'),
+      duration: Math.max(15, Math.round((endsAt.getTime() - startsAt.getTime()) / 60000)),
+    });
   }
 
   async function updateStatus(status: AppointmentStatus) {
@@ -107,6 +204,50 @@ export default function AppointmentDetailPage() {
     });
 
     if (res.ok) fetchAppointment();
+  }
+
+  /** Saves a schedule edit while preserving the appointment's current status. */
+  async function handleScheduleUpdate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!appointment) return;
+
+    setMessage('');
+    const startsAt = new Date(`${scheduleForm.date}T${scheduleForm.time}`);
+    const endsAt = new Date(startsAt.getTime() + scheduleForm.duration * 60000);
+
+    if (Number.isNaN(startsAt.getTime()) || scheduleForm.duration < 15) {
+      setMessage('Choose a valid date, time, and duration of at least 15 minutes.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/appointments/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: appointment.status,
+          startsAt: startsAt.toISOString(),
+          endsAt: endsAt.toISOString(),
+          rescheduleReason: 'Schedule updated from appointment details',
+        }),
+      });
+      if (!res.ok) {
+        const validation = [400, 409, 422].includes(res.status) ? await res.json().catch(() => null) : null;
+        const reason = typeof validation?.error === 'string' ? validation.error.slice(0, 300) : null;
+        setMessage(res.status === 401 ? 'Please sign in again before updating this appointment.'
+          : res.status === 403 ? 'You do not have permission to update this appointment.'
+          : reason || 'The update was not confirmed. Refresh the appointment before retrying.');
+        return;
+      }
+      const data: unknown = await res.json();
+      if (!isUsableAppointment(data)) throw new Error('Invalid appointment response');
+      setScheduleFormFromAppointment(data);
+      setAppointment(data);
+      setEditingSchedule(false);
+      setMessage('Appointment schedule updated.');
+    } catch {
+      setMessage('The update was not confirmed. Refresh the appointment before retrying.');
+    }
   }
 
   async function handleCheckIn() {
@@ -166,10 +307,23 @@ export default function AppointmentDetailPage() {
 
   async function handleWorkoutLog(e: React.FormEvent) {
     e.preventDefault();
+    const structuredExercises = exerciseRows
+      .filter((row) => row.exerciseId || row.name.trim())
+      .map((row) => ({
+        exerciseId: row.exerciseId || undefined,
+        name: row.exerciseId ? undefined : row.name.trim(),
+        coachNotes: row.coachNotes.trim() || undefined,
+        sets: Array.from({ length: row.sets }, () => ({
+          reps: row.reps || undefined,
+          weightKg: row.weightKg || undefined,
+          rpe: row.rpe || undefined,
+        })),
+      }));
+
     const res = await fetch(`/api/appointments/${id}/workout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(workoutForm),
+      body: JSON.stringify({ ...workoutForm, structuredExercises }),
     });
 
     if (res.ok) {
@@ -194,6 +348,29 @@ export default function AppointmentDetailPage() {
     return cancellableStatuses.includes(status);
   }
 
+  /** Limits schedule edits to appointments that are still operationally active. */
+  function canEditSchedule(status: AppointmentStatus) {
+    const editableStatuses: AppointmentStatus[] = [
+      AppointmentStatus.PENDING,
+      AppointmentStatus.CONFIRMED,
+      AppointmentStatus.RESCHEDULED,
+    ];
+
+    return editableStatuses.includes(status);
+  }
+
+  function updateExerciseRow(index: number, patch: Partial<ExerciseRowForm>) {
+    setExerciseRows((rows) => rows.map((row, rowIndex) => (rowIndex === index ? { ...row, ...patch } : row)));
+  }
+
+  function addExerciseRow() {
+    setExerciseRows((rows) => [...rows, { exerciseId: '', name: '', sets: 3, reps: 10, weightKg: 0, rpe: 7, coachNotes: '' }]);
+  }
+
+  function removeExerciseRow(index: number) {
+    setExerciseRows((rows) => rows.length === 1 ? rows : rows.filter((_, rowIndex) => rowIndex !== index));
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
@@ -205,7 +382,8 @@ export default function AppointmentDetailPage() {
   if (!appointment) {
     return (
       <div className="card text-center py-12">
-        <p className="text-slate-500">Appointment not found.</p>
+        <p role="alert" className="text-slate-500">{loadError || 'Appointment not found.'}</p>
+        <button type="button" onClick={() => void fetchAppointment()} className="btn-primary mt-4 mx-2">Retry loading</button>
         <Link href="/dashboard/appointments" className="btn-secondary mt-4 inline-flex">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back to appointments
@@ -321,6 +499,12 @@ export default function AppointmentDetailPage() {
               Cancel
             </button>
           )}
+          {canEditSchedule(appointment.status) && (
+            <button onClick={() => setEditingSchedule((value) => !value)} className="btn-secondary">
+              <Pencil className="h-4 w-4" aria-hidden="true" />
+              {editingSchedule ? 'Close Edit' : 'Edit Schedule'}
+            </button>
+          )}
           {appointment.status === AppointmentStatus.CONFIRMED && (
             <>
               {isClient && (
@@ -344,6 +528,49 @@ export default function AppointmentDetailPage() {
             </>
           )}
         </div>
+
+        {editingSchedule && canEditSchedule(appointment.status) && (
+          <form onSubmit={handleScheduleUpdate} className="mt-6 grid grid-cols-1 gap-4 rounded-2xl border border-brand-line bg-brand-paper/70 p-4 sm:grid-cols-4">
+            <div>
+              <label className="label">Date</label>
+              <input
+                type="date"
+                required
+                value={scheduleForm.date}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, date: e.target.value })}
+                className="input"
+              />
+            </div>
+            <div>
+              <label className="label">Start Time</label>
+              <input
+                type="time"
+                required
+                value={scheduleForm.time}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, time: e.target.value })}
+                className="input"
+              />
+            </div>
+            <div>
+              <label className="label">Duration</label>
+              <input
+                type="number"
+                min="15"
+                step="15"
+                required
+                value={scheduleForm.duration}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, duration: Number(e.target.value) })}
+                className="input"
+              />
+            </div>
+            <div className="flex items-end">
+              <button type="submit" className="btn-primary w-full">
+                <Save className="h-4 w-4" aria-hidden="true" />
+                Save Changes
+              </button>
+            </div>
+          </form>
+        )}
       </div>
 
       {appointment.checkIns.length > 0 && (
@@ -443,6 +670,72 @@ export default function AppointmentDetailPage() {
               />
             </div>
             <div className="flex items-end sm:col-span-2 lg:col-span-3">
+              <div className="w-full rounded-lg border border-ink-900/10 bg-[#fafaf4] p-4 dark:border-white/10 dark:bg-white/5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="font-display text-lg font-black text-ink-900 dark:text-white">Specific exercises</h3>
+                    <p className="mt-1 text-sm font-semibold text-slate-600 dark:text-slate-300">Record the movement, sets, reps, load, and effort for this session.</p>
+                  </div>
+                  <button type="button" onClick={addExerciseRow} className="btn-secondary">
+                    <Plus className="h-4 w-4" aria-hidden="true" />
+                    Add exercise
+                  </button>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {exerciseRows.map((row, index) => (
+                    <div key={index} className="grid gap-3 rounded-lg bg-white p-3 ring-1 ring-ink-900/10 dark:bg-ink-900 dark:ring-white/10 sm:grid-cols-6">
+                      <div className="sm:col-span-2">
+                        <label className="label">Exercise</label>
+                        <select
+                          value={row.exerciseId}
+                          onChange={(e) => updateExerciseRow(index, { exerciseId: e.target.value, name: '' })}
+                          className="input"
+                        >
+                          <option value="">Custom exercise</option>
+                          {exerciseLibrary.map((exercise) => (
+                            <option key={exercise.id} value={exercise.id}>{exercise.name}</option>
+                          ))}
+                        </select>
+                        {!row.exerciseId && (
+                          <input
+                            value={row.name}
+                            onChange={(e) => updateExerciseRow(index, { name: e.target.value })}
+                            placeholder="Exercise name"
+                            className="input mt-2"
+                          />
+                        )}
+                      </div>
+                      <div>
+                        <label className="label">Sets</label>
+                        <input type="number" min={1} max={20} value={row.sets} onChange={(e) => updateExerciseRow(index, { sets: Number(e.target.value) })} className="input" />
+                      </div>
+                      <div>
+                        <label className="label">Reps</label>
+                        <input type="number" min={0} value={row.reps} onChange={(e) => updateExerciseRow(index, { reps: Number(e.target.value) })} className="input" />
+                      </div>
+                      <div>
+                        <label className="label">Load kg</label>
+                        <input type="number" min={0} step="0.5" value={row.weightKg} onChange={(e) => updateExerciseRow(index, { weightKg: Number(e.target.value) })} className="input" />
+                      </div>
+                      <div>
+                        <label className="label">RPE</label>
+                        <div className="flex gap-2">
+                          <input type="number" min={1} max={10} value={row.rpe} onChange={(e) => updateExerciseRow(index, { rpe: Number(e.target.value) })} className="input" />
+                          <button type="button" onClick={() => removeExerciseRow(index)} className="rounded-lg border border-red-200 px-3 text-red-600 hover:bg-red-50" aria-label="Remove exercise">
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="sm:col-span-6">
+                        <label className="label">Coach notes for this exercise</label>
+                        <input value={row.coachNotes} onChange={(e) => updateExerciseRow(index, { coachNotes: e.target.value })} placeholder="Tempo, form cues, modifications, or targets" className="input" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-end sm:col-span-2 lg:col-span-3">
               <button type="submit" className="btn-primary w-full sm:w-auto">
                 <Trophy className="h-4 w-4" aria-hidden="true" />
                 Complete Session
@@ -486,6 +779,37 @@ export default function AppointmentDetailPage() {
               <div className="sm:col-span-2 lg:col-span-2">
                 <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Client Feedback</p>
                 <p className="mt-1 text-sm text-slate-700">{appointment.workoutLog.clientFeedback}</p>
+              </div>
+            )}
+            {appointment.workoutLog.workoutExercises.length > 0 && (
+              <div className="sm:col-span-2 lg:col-span-4">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Exercises completed</p>
+                <div className="mt-3 space-y-3">
+                  {appointment.workoutLog.workoutExercises.map((entry) => (
+                    <div key={entry.id} className="rounded-lg border border-ink-900/10 bg-[#fafaf4] p-4 dark:border-white/10 dark:bg-white/5">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="font-display text-lg font-black text-ink-900 dark:text-white">{entry.exercise.name}</p>
+                          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                            {[entry.exercise.primaryMuscleGroup, entry.exercise.equipment, entry.blockName].filter(Boolean).join(' Ã‚Â· ')}
+                          </p>
+                        </div>
+                        <span className="rounded-lg bg-primary-300 px-2 py-1 text-xs font-black uppercase text-ink-900">{entry.exercise.category}</span>
+                      </div>
+                      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                        {entry.sets.map((set) => (
+                          <div key={set.id} className="rounded-lg bg-white p-3 text-sm ring-1 ring-ink-900/10 dark:bg-ink-900 dark:ring-white/10">
+                            <p className="font-black text-ink-900 dark:text-white">Set {set.setIndex + 1}</p>
+                            <p className="mt-1 font-semibold text-slate-600 dark:text-slate-300">
+                              {set.reps ?? '--'} reps {set.weightKg ? `Ã‚Â· ${set.weightKg}kg` : ''} {set.rpe ? `Ã‚Â· RPE ${set.rpe}` : ''}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                      {entry.coachNotes && <p className="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-300">{entry.coachNotes}</p>}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

@@ -8,11 +8,21 @@ import { cancellableStatuses, getMobileAppointmentContext, mobileAppointmentIncl
 import { requireMobileAuth } from '@/lib/mobile-auth';
 
 const updateSchema = z.object({
-  status: z.nativeEnum(AppointmentStatus),
+  status: z.nativeEnum(AppointmentStatus).optional(),
   cancellationReason: z.string().optional(),
+  rescheduleReason: z.string().optional(),
+  startsAt: z.string().datetime().optional(),
+  endsAt: z.string().datetime().optional(),
 });
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+const editableScheduleStatuses: AppointmentStatus[] = [
+  AppointmentStatus.PENDING,
+  AppointmentStatus.CONFIRMED,
+  AppointmentStatus.RESCHEDULED,
+];
+
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requireMobileAuth(req);
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -25,9 +35,18 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: 'Invalid input', issues: parsed.error.issues }, { status: 400 });
   }
 
-  const { status, cancellationReason } = parsed.data;
-  if (status === AppointmentStatus.CONFIRMED && auth.user.role === 'CLIENT') {
+  const { cancellationReason, rescheduleReason, startsAt, endsAt } = parsed.data;
+  const status = parsed.data.status ?? ctx.appointment.status;
+  const hasScheduleChange = Boolean(startsAt || endsAt);
+
+  if (status === AppointmentStatus.CONFIRMED && ctx.appointment.status !== AppointmentStatus.CONFIRMED && auth.user.role === 'CLIENT') {
     return NextResponse.json({ error: 'Only trainers can confirm appointments' }, { status: 403 });
+  }
+  if (hasScheduleChange && !editableScheduleStatuses.includes(ctx.appointment.status)) {
+    return NextResponse.json({ error: 'Only pending, confirmed, or rescheduled appointments can be edited' }, { status: 409 });
+  }
+  if (startsAt && endsAt && new Date(endsAt) <= new Date(startsAt)) {
+    return NextResponse.json({ error: 'End time must be after start time' }, { status: 400 });
   }
   if (status === AppointmentStatus.CANCELLED && !cancellableStatuses.includes(ctx.appointment.status)) {
     return NextResponse.json({ error: 'Only pending, confirmed, or rescheduled appointments can be cancelled' }, { status: 409 });
@@ -38,7 +57,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   const appointment = await prisma.appointment.update({
     where: { id: params.id },
-    data: { status, ...(cancellationReason ? { cancellationReason } : {}) },
+    data: {
+      status,
+      ...(cancellationReason ? { cancellationReason } : {}),
+      ...(rescheduleReason ? { rescheduleReason } : {}),
+      ...(startsAt ? { startsAt: new Date(startsAt) } : {}),
+      ...(endsAt ? { endsAt: new Date(endsAt) } : {}),
+    },
     include: mobileAppointmentInclude,
   });
 
@@ -50,9 +75,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     actorId: auth.user.id,
     entityType: 'appointment',
     entityId: appointment.id,
-    action: `mobile_status_changed_to_${status}`,
+    action: hasScheduleChange ? 'mobile_appointment_schedule_edited' : `mobile_status_changed_to_${status}`,
     appointmentId: appointment.id,
-    metadata: { status, cancellationReason },
+    metadata: { status, cancellationReason, rescheduleReason, startsAt, endsAt },
   });
 
   return NextResponse.json(appointment);

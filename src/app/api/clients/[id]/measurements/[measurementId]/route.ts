@@ -6,8 +6,9 @@ import { logAudit } from '@/lib/audit';
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string; measurementId: string } }
+  props: { params: Promise<{ id: string; measurementId: string }> }
 ) {
+  const params = await props.params;
   const session = await auth();
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

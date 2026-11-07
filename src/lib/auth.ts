@@ -4,6 +4,7 @@ import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from './db';
+import { UserRole } from '@prisma/client';
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -32,9 +33,10 @@ export const authConfig = {
 
         const user = await prisma.user.findUnique({
           where: { email },
+          include: { trainer: { select: { active: true, approved: true } } },
         });
 
-        if (!user || !user.password) return null;
+        if (!user?.password || (user.role === UserRole.TRAINER && (!user.trainer?.active || !user.trainer.approved))) return null;
 
         const valid = await bcrypt.compare(password, user.password);
         if (!valid) return null;
@@ -55,6 +57,13 @@ export const authConfig = {
         token.id = user.id;
         token.role = user.role;
       }
+      if (typeof token.id !== 'string') return null;
+      const current = await prisma.user.findUnique({
+        where: { id: token.id },
+        select: { role: true, trainer: { select: { active: true, approved: true } } },
+      });
+      if (!current || current.role !== token.role) return null;
+      if (current.role === UserRole.TRAINER && (!current.trainer?.active || !current.trainer.approved)) return null;
       return token;
     },
     async session({ session, token }) {

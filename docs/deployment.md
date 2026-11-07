@@ -58,7 +58,7 @@ For deployment on Thelightville's CT117 Docker host:
    ./scripts/deploy-ct117.sh
    ```
 
-This builds the app, starts PostgreSQL, runs migrations/seeds, and registers metadata with the hosting API.
+This builds the app, starts PostgreSQL, runs migrations, and registers metadata with the hosting API.
 
 ### CT117 Notes
 
@@ -75,8 +75,8 @@ This builds the app, starts PostgreSQL, runs migrations/seeds, and registers met
 | App container | Healthy on `0.0.0.0:8054` |
 | Database | Healthy, migrations applied |
 | Public URL | https://fitness.myapps.com.ng |
-| DNS CNAME | `fitness.myapps.com.ng` → Cloudflare tunnel |
-| Tunnel route | `fitness.myapps.com.ng` → `http://172.16.16.117:8054` |
+| DNS CNAME | `fitness.myapps.com.ng` â†’ Cloudflare tunnel |
+| Tunnel route | `fitness.myapps.com.ng` â†’ `http://172.16.16.117:8054` |
 | Reminder cron | Every 5 minutes |
 | Hosting meta | `/opt/docker-sites/fitness.myapps.com.ng/.hosting-meta.json` |
 
@@ -98,6 +98,21 @@ This builds the app, starts PostgreSQL, runs migrations/seeds, and registers met
 ## Reverse Proxy
 
 Place the app behind a reverse proxy (e.g., Nginx, Kariya, or Cloudflare) with HTTPS for `fitness.myapps.com.ng`.
+
+## One-studio pilot candidate
+
+The pilot uses the existing web API and Android client. Build from a clean checkout using the Node image pinned in `Dockerfile.pilot`:
+
+```bash
+revision=$(git rev-parse HEAD)
+docker build -f Dockerfile.pilot --build-arg FITNESS_BUILD_REVISION="$revision" -t "fitness-pilot:$revision" .
+```
+
+The pilot workflow runs the production web image against PostgreSQL using synthetic accounts. It also builds a test-signed Android APK with package ID `ng.myapps.fitness.pilot` and records its commit and checksum. The APK can be installed alongside the Play app. It is separate from Play distribution, uses the app's existing API origin, and must only be used for the pilot after the corresponding backend is available. Play builds require the existing upload key and a separately verified version code.
+
+Before activating an upgraded deployment, confirm the production migration ledger, take a backup and rehearse restoring it on a disposable database. Retain the prior image and configuration. Run `npm run db:deploy` from the reviewed revision with the deployment database connection. The migration preserves existing records and leaves all previously created trainers unapproved. In **Manage Trainers**, explicitly approve each verified pilot trainer and select their assigned clients. Existing appointment history does not create an assignment. Verify the active demo accounts and remove or rotate any documented defaults before inviting participants.
+
+The November dashboard, measurements and appointment-save patches are now built from source. The original source and review evidence for those changes remains in the Fitness and hosting pull requests. Retain the preceding immutable static assets during cutover until already-open tabs are exercised. Rollback to the old image can restore the original access flaw, so use a verified secured release or pause service if rollback would otherwise reintroduce it.
 
 ## Backup
 

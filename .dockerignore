@@ -10,3 +10,10 @@ yarn-error.log*
 *.pem
 .vscode
 .idea
+
+.git
+.next
+mobile
+qa
+**/node_modules
+**/.env*

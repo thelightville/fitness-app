@@ -38,7 +38,6 @@ docker compose -f docker-compose.ct117.yml down || true
 docker compose -f docker-compose.ct117.yml up -d db
 sleep 10
 npx prisma migrate deploy
-npm run db:seed
 
 echo "[6] Building and starting app container..."
 docker compose -f docker-compose.ct117.yml up -d --build app

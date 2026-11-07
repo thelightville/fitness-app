@@ -13,6 +13,12 @@ export interface MobileUser {
   role: UserRole;
 }
 
+type MobileSessionUser = MobileUser & { trainer: { active: boolean; approved: boolean } | null };
+
+function mobileAccountAllowed(user: MobileSessionUser) {
+  return user.role !== UserRole.TRAINER || !!(user.trainer?.active && user.trainer.approved);
+}
+
 export interface MobileAuthContext {
   sessionId: string;
   user: MobileUser;
@@ -66,10 +72,10 @@ export async function requireMobileAuth(req: NextRequest): Promise<MobileAuthCon
 
   const session = await prisma.mobileSession.findUnique({
     where: { accessTokenHash: hashCredential(match[1]) },
-    include: { user: { select: { id: true, email: true, name: true, role: true } } },
+    include: { user: { select: { id: true, email: true, name: true, role: true, trainer: { select: { active: true, approved: true } } } } },
   });
 
-  if (!session || session.revokedAt || session.accessExpiresAt <= new Date()) return null;
+  if (!session || session.revokedAt || session.accessExpiresAt <= new Date() || !mobileAccountAllowed(session.user)) return null;
   return { sessionId: session.id, user: mobileUser(session.user) };
 }
 
@@ -77,15 +83,16 @@ export async function requireMobileAuth(req: NextRequest): Promise<MobileAuthCon
 export async function refreshMobileSession(refreshToken: string) {
   const existing = await prisma.mobileSession.findUnique({
     where: { refreshTokenHash: hashCredential(refreshToken) },
-    include: { user: { select: { id: true, email: true, name: true, role: true } } },
+    include: { user: { select: { id: true, email: true, name: true, role: true, trainer: { select: { active: true, approved: true } } } } },
   });
 
-  if (!existing || existing.revokedAt || existing.refreshExpiresAt <= new Date()) return null;
+  if (!existing || existing.revokedAt || existing.refreshExpiresAt <= new Date() || !mobileAccountAllowed(existing.user)) return null;
 
-  await prisma.mobileSession.update({
-    where: { id: existing.id },
+  const revoked = await prisma.mobileSession.updateMany({
+    where: { id: existing.id, revokedAt: null },
     data: { revokedAt: new Date() },
   });
+  if (revoked.count !== 1) return null;
 
   return issueMobileSession(existing.user);
 }

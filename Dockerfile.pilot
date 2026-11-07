@@ -1,0 +1,26 @@
+# syntax=docker/dockerfile:1
+ARG NODE_IMAGE=node:22.23.4-bookworm@sha256:7702d8aa4d5910871692af4480eb3ba86f23047a6417a44d857d06c95d060d3f
+FROM ${NODE_IMAGE} AS build
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts --no-audit --no-fund
+COPY prisma ./prisma
+RUN npm run db:generate
+COPY . .
+ARG FITNESS_BUILD_REVISION
+ENV FITNESS_BUILD_REVISION=${FITNESS_BUILD_REVISION}
+RUN test -n "$FITNESS_BUILD_REVISION" && npm run build
+
+FROM ${NODE_IMAGE} AS runtime
+WORKDIR /app
+ARG FITNESS_BUILD_REVISION
+LABEL org.opencontainers.image.revision=${FITNESS_BUILD_REVISION}
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
+COPY --from=build --chown=node:node /app/.next/standalone ./
+COPY --from=build --chown=node:node /app/.next/static ./.next/static
+COPY --from=build --chown=node:node /app/public ./public
+COPY --from=build --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma
+USER node
+EXPOSE 3000
+CMD ["node", "server.js"]

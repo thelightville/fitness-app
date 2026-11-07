@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Dumbbell, User, Mail, Phone, Lock, Users, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Dumbbell, User, Mail, Phone, Lock, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 /**
  * Renders the interactive registration form for the dynamic registration route.
@@ -15,7 +15,6 @@ export default function RegisterForm() {
     email: '',
     phone: '',
     password: '',
-    role: 'CLIENT',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -147,25 +146,7 @@ export default function RegisterForm() {
               </div>
             </div>
 
-            <div>
-              <label htmlFor="role" className="label">
-                I am a
-              </label>
-              <div className="relative mt-1">
-                <div className={inputIconClass}>
-                  <Users className="h-4 w-4 text-slate-400" aria-hidden="true" />
-                </div>
-                <select
-                  id="role"
-                  value={form.role}
-                  onChange={(e) => setForm({ ...form, role: e.target.value })}
-                  className="input pl-10"
-                >
-                  <option value="CLIENT">Client</option>
-                  <option value="TRAINER">Personal Trainer</option>
-                </select>
-              </div>
-            </div>
+            <p className="text-sm text-slate-600 dark:text-slate-300">Your studio administrator can set up a trainer account.</p>
 
             <button type="submit" disabled={loading} className="btn-primary w-full">
               {loading ? (

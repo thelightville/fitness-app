@@ -1,3 +1,4 @@
+import { assignedClient, eligibleTrainer } from '@/lib/trainer-access';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
@@ -33,6 +34,7 @@ export async function GET(req: NextRequest) {
     const trainer = await prisma.trainer.findUnique({ where: { userId: session.user.id } });
     if (!trainer) return NextResponse.json({ error: 'Trainer profile not found' }, { status: 404 });
     where.trainerId = trainer.id;
+    where.client = assignedClient(session.user.id);
   }
 
   if (status) where.status = status;
@@ -98,7 +100,7 @@ export async function POST(req: NextRequest) {
 
   const [client, trainer, gym] = await Promise.all([
     prisma.client.findFirst({ where: { id: clientId, active: true } }),
-    prisma.trainer.findFirst({ where: { id: trainerId, active: true } }),
+    prisma.trainer.findFirst({ where: { id: trainerId, ...eligibleTrainer, clients: { some: { id: clientId, active: true } } } }),
     prisma.gymLocation.findFirst({ where: { id: gymLocationId, active: true } }),
   ]);
 

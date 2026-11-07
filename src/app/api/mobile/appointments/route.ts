@@ -1,3 +1,4 @@
+import { eligibleTrainer } from '@/lib/trainer-access';
 import { NextRequest, NextResponse } from 'next/server';
 import { AppointmentStatus } from '@prisma/client';
 import { z } from 'zod';
@@ -74,7 +75,7 @@ export async function POST(req: NextRequest) {
 
   const [client, trainer, gym] = await Promise.all([
     prisma.client.findFirst({ where: { id: clientId, active: true } }),
-    prisma.trainer.findFirst({ where: { id: trainerId, active: true } }),
+    prisma.trainer.findFirst({ where: { id: trainerId, ...eligibleTrainer, clients: { some: { id: clientId, active: true } } } }),
     prisma.gymLocation.findFirst({ where: { id: gymLocationId, active: true } }),
   ]);
 

@@ -9,7 +9,7 @@ const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   phone: z.string().optional(),
-  role: z.enum([UserRole.CLIENT, UserRole.TRAINER]).default(UserRole.CLIENT),
+  role: z.literal(UserRole.CLIENT).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid input', issues: parsed.error.issues }, { status: 400 });
     }
 
-    const { name, email, password, phone, role } = parsed.data;
+    const { name, email, password, phone } = parsed.data;
 
     const existing = await prisma.user.findUnique({
       where: { email },
@@ -39,19 +39,10 @@ export async function POST(req: NextRequest) {
         email,
         password: hashedPassword,
         phone,
-        role,
+        role: UserRole.CLIENT,
+        client: { create: {} },
       },
     });
-
-    if (role === UserRole.CLIENT) {
-      await prisma.client.create({
-        data: { userId: user.id },
-      });
-    } else if (role === UserRole.TRAINER) {
-      await prisma.trainer.create({
-        data: { userId: user.id },
-      });
-    }
 
     return NextResponse.json({ id: user.id, email: user.email, role: user.role }, { status: 201 });
   } catch (error) {

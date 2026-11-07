@@ -1,3 +1,4 @@
+import { assignedClient } from '@/lib/trainer-access';
 import { NextResponse } from 'next/server';
 import { UserRole } from '@prisma/client';
 import { auth } from '@/lib/auth';
@@ -21,9 +22,9 @@ export async function GET() {
   }
 
   const clients = await prisma.client.findMany({
-    where: { active: true },
+    where: session.user.role === 'TRAINER' ? assignedClient(session.user.id) : { active: true },
     orderBy: { user: { name: 'asc' } },
-    include: { user: { select: { name: true, email: true } } },
+    select: { id: true, user: { select: { name: true, email: true } } },
   });
 
   return NextResponse.json(clients);

@@ -27,7 +27,7 @@ const supportTopics = [
 /** Public support page for app-store contact and tester onboarding. */
 export default function SupportPage() {
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-brand-paper px-4 py-10 text-ink-900 dark:bg-ink-900 dark:text-slate-100 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
         <Link href="/" className="btn-ghost mb-8 inline-flex">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
@@ -35,7 +35,7 @@ export default function SupportPage() {
         </Link>
 
         <section className="card">
-          <p className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400">
+          <p className="text-sm font-black uppercase tracking-wide text-flame-600 dark:text-flame-300">
             Fitness PT Tracker support
           </p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Support</h1>
@@ -48,16 +48,18 @@ export default function SupportPage() {
             {supportTopics.map((topic) => {
               const Icon = topic.icon;
               return (
-                <div key={topic.title} className="rounded-lg border border-slate-200 p-5 dark:border-slate-700">
-                  <Icon className="h-6 w-6 text-primary-600 dark:text-primary-400" aria-hidden="true" />
-                  <h2 className="mt-4 text-base font-bold text-slate-900 dark:text-slate-100">{topic.title}</h2>
+                <div key={topic.title} className="rounded-lg border border-brand-line bg-brand-paper/70 p-5 dark:border-white/10 dark:bg-white/[0.04]">
+                  <div className="inline-flex rounded-lg bg-ink-900 p-2.5 text-primary-200 dark:bg-primary-300 dark:text-ink-900">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <h2 className="mt-4 text-base font-black text-ink-900 dark:text-slate-100">{topic.title}</h2>
                   <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{topic.body}</p>
                 </div>
               );
             })}
           </div>
 
-          <div className="mt-10 rounded-lg bg-slate-100 p-5 dark:bg-slate-900">
+          <div className="mt-10 rounded-lg bg-primary-50 p-5 ring-1 ring-primary-200 dark:bg-white/[0.04] dark:ring-white/10">
             <h2 className="section-title">Contact</h2>
             <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
               Email{' '}

@@ -20,7 +20,7 @@ const retainedData = [
 /** Public account deletion instructions for Google Play data-safety compliance. */
 export default function AccountDeletionPage() {
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-brand-paper px-4 py-10 text-ink-900 dark:bg-ink-900 dark:text-slate-100 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
         <Link href="/" className="btn-ghost mb-8 inline-flex">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
@@ -29,11 +29,11 @@ export default function AccountDeletionPage() {
 
         <section className="card">
           <div className="flex items-start gap-4">
-            <div className="rounded-lg bg-red-600 p-3 text-white">
+            <div className="rounded-lg bg-red-600 p-3 text-white ring-4 ring-red-100 dark:ring-red-500/15">
               <Trash2 className="h-6 w-6" aria-hidden="true" />
             </div>
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400">
+              <p className="text-sm font-black uppercase tracking-wide text-flame-600 dark:text-flame-300">
                 Fitness PT Tracker data request
               </p>
               <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Account deletion</h1>
@@ -44,9 +44,9 @@ export default function AccountDeletionPage() {
             </div>
           </div>
 
-          <section className="mt-10 rounded-lg bg-slate-100 p-5 dark:bg-slate-900">
+          <section className="mt-10 rounded-lg bg-primary-50 p-5 ring-1 ring-primary-200 dark:bg-white/[0.04] dark:ring-white/10">
             <div className="flex items-center gap-3">
-              <Mail className="h-5 w-5 text-primary-600 dark:text-primary-400" aria-hidden="true" />
+              <Mail className="h-5 w-5 text-flame-600 dark:text-flame-300" aria-hidden="true" />
               <h2 className="section-title">How to request deletion</h2>
             </div>
             <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6 text-slate-600 dark:text-slate-300">
@@ -57,20 +57,20 @@ export default function AccountDeletionPage() {
           </section>
 
           <div className="mt-8 grid gap-6 md:grid-cols-2">
-            <section className="rounded-lg border border-slate-200 p-5 dark:border-slate-700">
+            <section className="rounded-lg border border-brand-line bg-brand-card p-5 dark:border-white/10 dark:bg-white/[0.04]">
               <h2 className="section-title">Data deleted</h2>
               <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
                 {deletedData.map((item) => (
-                  <li key={item}>{item}</li>
+                  <li key={item} className="flex gap-2"><span className="font-black text-primary-700 dark:text-primary-300">✓</span><span>{item}</span></li>
                 ))}
               </ul>
             </section>
 
-            <section className="rounded-lg border border-slate-200 p-5 dark:border-slate-700">
+            <section className="rounded-lg border border-brand-line bg-brand-card p-5 dark:border-white/10 dark:bg-white/[0.04]">
               <h2 className="section-title">Data retained</h2>
               <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
                 {retainedData.map((item) => (
-                  <li key={item}>{item}</li>
+                  <li key={item} className="flex gap-2"><span className="font-black text-flame-600 dark:text-flame-300">!</span><span>{item}</span></li>
                 ))}
               </ul>
             </section>

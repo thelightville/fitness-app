@@ -8,6 +8,10 @@ import {
   ShieldCheck,
   BarChart3,
   ArrowRight,
+  Flame,
+  TimerReset,
+  LogIn,
+  Sparkles,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -16,33 +20,33 @@ export const revalidate = 0;
 const features = [
   {
     icon: CalendarDays,
-    title: 'Easy Scheduling',
-    description: 'Book sessions in advance based on trainer availability and receive calendar invites.',
+    title: 'Session Command',
+    description: 'Book, confirm, reschedule, and track every coaching slot without chasing messages.',
   },
   {
     icon: MapPinCheck,
-    title: 'Location Check-In',
-    description: 'Confirm attendance with geolocation verification when you arrive at the gym.',
+    title: 'Proof Of Presence',
+    description: 'Gym check-ins make attendance records clear for trainers, clients, and operators.',
   },
   {
     icon: Dumbbell,
-    title: 'Workout Logging',
-    description: 'Trainers log workout type, exercises, intensity, and notes for every session.',
+    title: 'Workout Memory',
+    description: 'Capture type, duration, intensity, notes, and context the moment the session ends.',
   },
   {
     icon: Bell,
-    title: 'Smart Reminders',
-    description: 'Automated email reminders so clients and trainers never miss a session.',
+    title: 'No-Excuse Reminders',
+    description: 'Automated nudges keep clients and coaches moving toward the next appointment.',
   },
   {
     icon: ShieldCheck,
-    title: 'Transparent Records',
-    description: 'Both parties see the same appointment history, status, and audit trail.',
+    title: 'Shared Truth',
+    description: 'Both sides see the same history, status trail, and completed training evidence.',
   },
   {
     icon: BarChart3,
-    title: 'Analytics Dashboard',
-    description: 'Track attendance, completion rates, no-shows, and workout trends over time.',
+    title: 'Performance Pulse',
+    description: 'Spot attendance, completion, no-show, and progress trends before they drift.',
   },
 ];
 
@@ -69,9 +73,9 @@ const stockPhotos = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen overflow-hidden bg-[#f7fbf7] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <header className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-5 sm:gap-3 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-1.5 text-sm font-extrabold tracking-tight text-slate-950 dark:text-primary-300 sm:gap-2 sm:text-xl">
+    <div className="min-h-screen overflow-hidden bg-brand-paper text-ink-900 dark:bg-ink-900 dark:text-slate-100">
+      <header className="motion-rise absolute inset-x-0 top-0 z-30 mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-5 sm:gap-3 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-2 rounded-lg bg-white/90 px-2.5 py-2 text-sm font-black tracking-tight text-ink-900 shadow-sm ring-1 ring-white/50 backdrop-blur sm:text-xl">
           <Image
             src="/images/icon-512.png"
             alt="Fitness PT Tracker"
@@ -84,137 +88,144 @@ export default function HomePage() {
           <span className="whitespace-nowrap">Fitness PT</span>
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <Link href="/login" className="btn-ghost px-2.5 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm">
+          <Link href="/login" className="btn bg-white/90 px-2.5 py-2 text-xs text-ink-900 ring-1 ring-white/60 backdrop-blur hover:bg-primary-100 sm:px-4 sm:py-2.5 sm:text-sm">
+            <LogIn className="h-4 w-4" aria-hidden="true" />
             Sign in
           </Link>
           <Link href="/register" className="btn-primary px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm">
+            <Sparkles className="h-4 w-4" aria-hidden="true" />
             Get Started
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 pb-16 pt-10 sm:px-6 lg:px-8 lg:pb-24">
-        <section className="grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="max-w-2xl">
-            <p className="inline-flex rounded-full bg-primary-100 px-4 py-2 text-sm font-bold text-primary-800 ring-1 ring-primary-200 dark:bg-primary-400/10 dark:text-primary-200 dark:ring-primary-400/20">
-              Personal training, scheduling, and progress in one place
-            </p>
-            <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-slate-950 sm:text-6xl dark:text-slate-100">
-              Train smarter. Track every session.
+      <main>
+        <section className="relative min-h-[92vh] overflow-hidden bg-ink-900 text-white">
+          <Image
+            src="/images/stock-strength-training.jpg"
+            alt="Athlete strength training in a gym"
+            fill
+            className="motion-drift object-cover opacity-70"
+            priority
+            sizes="100vw"
+            unoptimized
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,19,15,0.92),rgba(16,19,15,0.60)_48%,rgba(16,19,15,0.16))]" />
+          <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-7xl items-end px-4 pb-14 pt-32 sm:px-6 lg:px-8 lg:pb-20">
+            <div className="max-w-4xl">
+              <p className="motion-rise motion-delay-1 inline-flex rounded-lg bg-primary-300 px-4 py-2 text-sm font-black uppercase text-ink-900 ring-1 ring-white/20">
+                Personal training with proof, pace, and polish
+              </p>
+              <h1 className="motion-rise motion-delay-2 mt-6 max-w-4xl font-display text-5xl font-black leading-[0.95] tracking-normal text-white sm:text-7xl lg:text-8xl">
+                The gym floor, finally in sync.
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-slate-700 dark:text-slate-300">
-              Schedule, confirm, check in, and log workouts — all in one place. Built for personal
-              trainers and clients who want accurate, transparent records.
+            <p className="motion-rise motion-delay-3 mt-6 max-w-2xl text-lg font-semibold leading-8 text-slate-100 sm:text-xl">
+              A sharper operating system for trainers and clients: bookings, live attendance, workout notes, and progress signals wrapped in one premium mobile-first experience.
             </p>
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+            <div className="motion-rise motion-delay-4 mt-10 flex flex-col gap-4 sm:flex-row">
               <Link href="/register" className="btn-primary text-base">
-                Start training today
+                Start your next block
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
-              <Link href="/login" className="btn-secondary text-base">
-                Sign in to your account
+              <Link href="/login" className="btn border border-white/25 bg-white/10 text-base text-white backdrop-blur hover:bg-white/20">
+                Open dashboard
               </Link>
             </div>
-            <div className="mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-slate-200 pt-6 dark:border-slate-800">
-              <div>
-                <p className="text-2xl font-extrabold text-slate-950 dark:text-white">24/7</p>
-                <p className="mt-1 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Session access</p>
+            <div className="motion-fade motion-delay-4 mt-12 grid max-w-3xl grid-cols-3 gap-3 border-t border-white/20 pt-6 sm:gap-6">
+              <div className="rounded-lg bg-white/10 p-4 backdrop-blur transition duration-300 hover:-translate-y-1 hover:bg-white/15">
+                <p className="font-display text-3xl font-black text-primary-200">24/7</p>
+                <p className="mt-1 text-xs font-black uppercase text-slate-200">Session access</p>
               </div>
-              <div>
-                <p className="text-2xl font-extrabold text-slate-950 dark:text-white">GPS</p>
-                <p className="mt-1 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Gym check-ins</p>
+              <div className="rounded-lg bg-white/10 p-4 backdrop-blur transition duration-300 hover:-translate-y-1 hover:bg-white/15">
+                <p className="font-display text-3xl font-black text-primary-200">GPS</p>
+                <p className="mt-1 text-xs font-black uppercase text-slate-200">Gym check-ins</p>
               </div>
-              <div>
-                <p className="text-2xl font-extrabold text-slate-950 dark:text-white">Live</p>
-                <p className="mt-1 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Progress logs</p>
+              <div className="rounded-lg bg-white/10 p-4 backdrop-blur transition duration-300 hover:-translate-y-1 hover:bg-white/15">
+                <p className="font-display text-3xl font-black text-primary-200">Live</p>
+                <p className="mt-1 text-xs font-black uppercase text-slate-200">Progress logs</p>
               </div>
             </div>
           </div>
-
-          <div className="relative min-h-[420px] sm:min-h-[560px] lg:min-h-[640px]">
-            <div className="absolute inset-x-8 top-8 h-72 rounded-full bg-emerald-300/30 blur-3xl dark:bg-primary-500/20" />
-            <div className="relative mx-auto max-w-[590px] overflow-hidden rounded-[2rem] bg-slate-950 p-3 shadow-2xl ring-1 ring-slate-900/10 dark:bg-slate-900 dark:ring-white/10 lg:ml-auto">
-              <Image
-                src="/images/stock-gym-equipment.jpg"
-                alt="Gym floor with dumbbells ready for a training session"
-                width={1200}
-                height={900}
-                className="aspect-[4/3] w-full rounded-[1.5rem] object-cover"
-                priority
-                unoptimized
-              />
-              <div className="absolute inset-x-3 bottom-3 rounded-b-[1.5rem] bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent p-6 text-white">
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-primary-200">Live gym floor</p>
-                <p className="mt-2 text-2xl font-black">Appointments, check-ins, and progress in the same real-world workflow.</p>
-              </div>
-            </div>
-            <div className="absolute bottom-4 left-0 w-[52%] overflow-hidden rounded-3xl bg-white p-2 shadow-2xl ring-1 ring-slate-900/10 dark:bg-slate-900 dark:ring-white/10 sm:-bottom-2 sm:left-8 sm:w-[58%] sm:p-3">
-              <Image
-                src="/images/stock-gym-coaching.jpg"
-                alt="Athlete completing coached floor work in a bright studio"
-                width={900}
-                height={720}
-                className="aspect-[5/4] w-full rounded-2xl object-cover"
-                unoptimized
-              />
-            </div>
-            <div className="absolute bottom-16 right-0 w-[38%] overflow-hidden rounded-3xl bg-white p-2 shadow-xl ring-1 ring-slate-900/10 dark:bg-slate-900 dark:ring-white/10 sm:bottom-24 sm:w-[42%] sm:p-3">
-              <Image
-                src="/images/stock-strength-training.jpg"
-                alt="Athlete preparing a barbell lift on a gym floor"
-                width={700}
-                height={700}
-                className="aspect-square rounded-2xl object-cover"
-                unoptimized
-              />
-            </div>
           </div>
         </section>
 
-        <section className="mt-20 rounded-[2rem] bg-white/80 p-4 shadow-card ring-1 ring-slate-900/5 backdrop-blur dark:bg-slate-900/70 dark:ring-white/10 sm:p-6 lg:p-8">
-          <div className="grid gap-4 sm:grid-cols-3">
-            {stockPhotos.map((photo) => (
-              <article key={photo.title} className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
-                <Image
-                  src={photo.src}
-                  alt={photo.alt}
-                  width={960}
-                  height={640}
-                  className="aspect-[3/2] w-full object-cover"
-                  unoptimized
-                />
-                <div className="p-4">
-                  <h2 className="text-base font-extrabold text-slate-950 dark:text-white">{photo.title}</h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{photo.description}</p>
+        <section className="bg-brand-paper px-4 py-16 dark:bg-ink-900 sm:px-6 lg:px-8">
+          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+            <div>
+              <p className="text-sm font-black uppercase text-flame-600">New brand direction</p>
+              <h2 className="mt-3 max-w-xl font-display text-4xl font-black leading-tight text-ink-900 dark:text-white sm:text-5xl">
+                Premium coaching software that looks like it belongs in a serious studio.
+              </h2>
+            </div>
+            <p className="max-w-2xl text-base font-semibold leading-8 text-slate-700 dark:text-slate-300">
+              The experience now leans into contrast, motion-ready surfaces, and real training photography. It feels less like a form portal and more like a command center for coached progress.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-10 grid max-w-7xl gap-4 md:grid-cols-3">
+            {stockPhotos.map((photo, index) => (
+              <article key={photo.title} className="motion-rise group overflow-hidden rounded-lg bg-ink-900 text-white shadow-card">
+                <div className="relative aspect-[4/5] overflow-hidden">
+                  <Image
+                    src={photo.src}
+                    alt={photo.alt}
+                    fill
+                    className="object-cover transition duration-500 group-hover:scale-105"
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    unoptimized
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/28 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-5">
+                    <p className="font-display text-5xl font-black text-primary-200">0{index + 1}</p>
+                    <h3 className="mt-2 font-display text-2xl font-black">{photo.title}</h3>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-200">{photo.description}</p>
+                  </div>
                 </div>
               </article>
             ))}
           </div>
         </section>
 
-        <div className="mt-20 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="bg-ink-900 px-4 py-16 text-white sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+              <div>
+                <p className="inline-flex items-center gap-2 rounded-lg bg-primary-300 px-3 py-1.5 text-xs font-black uppercase text-ink-900">
+                  <Flame className="h-4 w-4" aria-hidden="true" /> Built for momentum
+                </p>
+                <h2 className="mt-4 font-display text-4xl font-black leading-tight sm:text-5xl">Everything that keeps a training business moving.</h2>
+              </div>
+              <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3">
+                <TimerReset className="h-5 w-5 text-flame-300" aria-hidden="true" />
+                <p className="text-sm font-bold text-slate-200">Designed for daily use by busy coaches.</p>
+              </div>
+            </div>
+
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <div
                 key={feature.title}
-                className="card card-hover group transition-all dark:bg-slate-900"
+                className="motion-rise group rounded-lg border border-white/10 bg-white/[0.04] p-6 transition-all hover:-translate-y-1 hover:bg-white/[0.08]"
               >
-                <div className="inline-flex rounded-xl bg-primary-50 p-3 text-primary-600 transition-colors group-hover:bg-primary-600 group-hover:text-white dark:bg-primary-400/10 dark:text-primary-300">
+                <div className="inline-flex rounded-lg bg-primary-300 p-3 text-ink-900 transition-colors group-hover:bg-flame-300">
                   <Icon className="h-6 w-6" aria-hidden="true" />
                 </div>
-                <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-slate-100">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                <h3 className="mt-4 font-display text-xl font-black text-white">{feature.title}</h3>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-300">
                   {feature.description}
                 </p>
               </div>
             );
           })}
         </div>
+          </div>
+        </section>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-8 dark:border-slate-700 dark:bg-slate-900">
-        <div className="mx-auto max-w-7xl px-4 text-center text-sm text-slate-500 dark:text-slate-400 sm:px-6 lg:px-8">
+      <footer className="border-t border-brand-line bg-brand-paper py-8 dark:border-white/10 dark:bg-ink-900">
+        <div className="mx-auto max-w-7xl px-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-400 sm:px-6 lg:px-8">
           <p>© {new Date().getFullYear()} Fitness PT Tracker. All rights reserved.</p>
           <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">Developed by Waju</p>
         </div>
